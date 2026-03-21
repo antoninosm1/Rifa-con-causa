@@ -23,12 +23,12 @@
   <div class="grid" id="grid"></div>
 
   <!-- Formulario oculto -->
-<form id="formRifa" 
-      action="https://script.google.com/macros/s/AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ/exec" 
-      method="POST" target="hiddenFrame" style="display:none;">
-  <input type="hidden" name="numero" id="numeroHidden">
-  <input type="hidden" name="comprador" id="compradorHidden">
-</form>
+  <form id="formRifa" 
+        action="TU_URL_EXEC" 
+        method="POST" target="hiddenFrame" style="display:none;">
+    <input type="hidden" name="numero" id="numeroHidden">
+    <input type="hidden" name="comprador" id="compradorHidden">
+  </form>
 
   <!-- Iframe oculto -->
   <iframe name="hiddenFrame" style="display:none;"></iframe>
@@ -41,7 +41,7 @@
     const numeroHidden = document.getElementById("numeroHidden");
     const compradorHidden = document.getElementById("compradorHidden");
     const form = document.getElementById("formRifa");
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ/exec";
+    const WEBAPP_URL = form.action;
 
     // Dibujar cuadrícula
     for (let i = 0; i < 100; i++) {
@@ -72,25 +72,25 @@
     }
 
     // Función para consultar BD y pintar ocupados
-function actualizarEstado() {
-  fetch(WEBAPP_URL)
-    .then(res => res.json())
-    .then(data => {
-      if (data.error) {
-        console.error("⚠️ Error desde WebApp:", data.error);
-        return;
-      }
-      console.log("📊 Datos BD recibidos:", data);
-      const ocupados = data.rifa_con_causa.map(row => row[0]);
-      document.querySelectorAll(".number").forEach(div => {
-        if (ocupados.includes(div.textContent) && !div.classList.contains("selected")) {
-          div.classList.add("occupied");
-          console.log("🔴 Ocupado:", div.textContent);
-        }
-      });
-    })
-    .catch(err => console.error("⚠️ Error al cargar BD:", err));
-}
+    function actualizarEstado() {
+      fetch(WEBAPP_URL)
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            console.error("⚠️ Error desde WebApp:", data.error);
+            return;
+          }
+          console.log("📊 Datos BD recibidos:", data);
+          const ocupados = data.rifa_con_causa.map(row => row[0]);
+          document.querySelectorAll(".number").forEach(div => {
+            if (ocupados.includes(div.textContent) && !div.classList.contains("selected")) {
+              div.classList.add("occupied");
+              console.log("🔴 Ocupado:", div.textContent);
+            }
+          });
+        })
+        .catch(err => console.error("⚠️ Error al cargar BD:", err));
+    }
 
     // Consultar BD al cargar
     actualizarEstado();
