@@ -11,8 +11,8 @@
     .number:hover { background-color: #80deea; transform: scale(1.05); }
     .occupied { background-color: #ef5350; color: white; cursor: not-allowed; border: 1px solid #c62828; }
     .selected { background-color: #4caf50; color: white; cursor: not-allowed; border: 1px solid #2e7d32; }
-    #refreshBtn { margin-top: 20px; padding: 10px 20px; background-color: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
-    #refreshBtn:hover { background-color: #34495e; }
+    #refreshBtn, #reloadBtn { margin: 10px; padding: 10px 20px; background-color: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    #refreshBtn:hover, #reloadBtn:hover { background-color: #34495e; }
     input#comprador { margin-bottom: 15px; padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 200px; }
   </style>
 </head>
@@ -34,6 +34,7 @@
   <iframe name="hiddenFrame" style="display:none;"></iframe>
 
   <button id="refreshBtn">Ver BD</button>
+  <button id="reloadBtn">Refrescar estado</button>
 
   <script>
     const grid = document.getElementById("grid");
@@ -42,6 +43,7 @@
     const form = document.getElementById("formRifa");
     const WEBAPP_URL = form.action;
 
+    // Dibujar cuadrícula
     for (let i = 0; i < 100; i++) {
       const num = i.toString().padStart(2, "0");
       const div = document.createElement("div");
@@ -49,6 +51,10 @@
       div.textContent = num;
 
       div.addEventListener("click", () => {
+        if (div.classList.contains("occupied")) {
+          alert("Número ya ocupado.");
+          return;
+        }
         if (document.querySelector(".selected")) {
           alert("Ya seleccionaste un número.");
           return;
@@ -65,9 +71,36 @@
       grid.appendChild(div);
     }
 
+    // Función para consultar BD y pintar ocupados
+    function actualizarEstado() {
+      fetch(WEBAPP_URL)
+        .then(res => res.json())
+        .then(data => {
+          console.log("📊 Datos BD recibidos:", data);
+          const ocupados = data.rifa_con_causa.map(row => row[0]);
+          document.querySelectorAll(".number").forEach(div => {
+            if (ocupados.includes(div.textContent) && !div.classList.contains("selected")) {
+              div.classList.add("occupied");
+              console.log("🔴 Ocupado:", div.textContent);
+            }
+          });
+        })
+        .catch(err => console.error("⚠️ Error al cargar BD:", err));
+    }
+
+    // Consultar BD al cargar
+    actualizarEstado();
+
+    // Botón Ver BD
     document.getElementById("refreshBtn").addEventListener("click", () => {
       console.log("📂 Abriendo BD en nueva pestaña");
       window.open(WEBAPP_URL, "_blank");
+    });
+
+    // Botón Refrescar estado
+    document.getElementById("reloadBtn").addEventListener("click", () => {
+      console.log("🔄 Refrescando estado desde BD...");
+      actualizarEstado();
     });
   </script>
 </body>
