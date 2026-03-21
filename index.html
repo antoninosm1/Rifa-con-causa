@@ -45,7 +45,9 @@
   <div class="grid" id="grid"></div>
 
   <!-- Formulario oculto que enviará datos al WebApp -->
-  <form id="formRifa" action="https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec" method="POST" target="_blank" style="display:none;">
+  <form id="formRifa" 
+        action="https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec" 
+        method="POST" target="_blank" style="display:none;">
     <input type="hidden" name="numero" id="numeroHidden">
     <input type="hidden" name="comprador" id="compradorHidden">
   </form>
@@ -66,6 +68,9 @@
       div.textContent = num;
 
       div.addEventListener("click", () => {
+        // Evitar seleccionar más de un número
+        if (document.querySelector(".selected")) return;
+
         // Al hacer clic, llenamos el formulario oculto y lo enviamos
         const comprador = document.getElementById("comprador").value || "Anonimo";
         numeroHidden.value = num;
