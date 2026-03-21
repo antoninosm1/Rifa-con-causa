@@ -69,7 +69,10 @@
 
       div.addEventListener("click", () => {
         // Evitar seleccionar más de un número
-        if (document.querySelector(".selected")) return;
+        if (document.querySelector(".selected")) {
+          alert("Ya seleccionaste un número.");
+          return;
+        }
 
         // Al hacer clic, llenamos el formulario oculto y lo enviamos
         const comprador = document.getElementById("comprador").value || "Anonimo";
