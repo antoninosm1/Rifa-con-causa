@@ -91,11 +91,12 @@
       window.open("https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec", "_blank");
     });
   </script>
-  <script>
+<script>
   const grid = document.getElementById("grid");
-  const form = document.getElementById("formRifa");
   const numeroHidden = document.getElementById("numeroHidden");
   const compradorHidden = document.getElementById("compradorHidden");
+
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec";
 
   for (let i = 0; i < 100; i++) {
     const num = i.toString().padStart(2, "0");
@@ -108,21 +109,26 @@
         alert("Ya seleccionaste un número.");
         return;
       }
-      const comprador = document.getElementById("comprador").value || "Anonimo";
-      numeroHidden.value = num;
-      compradorHidden.value = comprador;
 
-      // Log antes de enviar
+      const comprador = document.getElementById("comprador").value || "Anonimo";
+
       console.log("➡️ Enviando al WebApp:", { numero: num, comprador });
 
-      // Enviar formulario oculto
-      form.submit();
-
-      // Marcar visualmente
-      div.classList.add("selected");
-
-      // Log después de enviar
-      console.log("✅ Formulario enviado al WebApp");
+      // Enviar con fetch y capturar respuesta
+      fetch(WEBAPP_URL, {
+        method: "POST",
+        body: new URLSearchParams({ numero: num, comprador: comprador })
+      })
+      .then(res => res.text())
+      .then(texto => {
+        console.log("✅ Respuesta del WebApp:", texto);
+        alert(texto); // opcional, mostrar al usuario
+        div.classList.add("selected");
+      })
+      .catch(err => {
+        console.error("⚠️ Error al contactar WebApp:", err);
+        alert("Error al contactar WebApp: " + err);
+      });
     });
 
     grid.appendChild(div);
@@ -130,8 +136,7 @@
 
   document.getElementById("refreshBtn").addEventListener("click", () => {
     console.log("📂 Abriendo BD en nueva pestaña");
-    window.open("https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec", "_blank");
+    window.open(WEBAPP_URL, "_blank");
   });
-</script>
-</body>
+</script></body>
 </html>
