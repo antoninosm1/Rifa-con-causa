@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Rifa Transparente</title>
+
+  <!-- ====== ESTILOS (CSS) ====== -->
+  <style>
+    /* Contenedor de la cuadrícula 10x10 */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(10, 60px);
+      gap: 8px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    /* Estilo base de cada número */
+    .number {
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      background-color: #e0f7fa;
+      transition: background-color 0.3s, transform 0.2s;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    /* Efecto hover */
+    .number:hover {
+      background-color: #80deea;
+      transform: scale(1.05);
+    }
+
+    /* Números ocupados (rojo) */
+    .occupied {
+      background-color: #ef5350;
+      color: white;
+      cursor: not-allowed;
+      border: 1px solid #c62828;
+    }
+
+    /* Número seleccionado (verde) */
+    .selected {
+      background-color: #4caf50;
+      color: white;
+      cursor: not-allowed;
+      border: 1px solid #2e7d32;
+    }
+
+    /* Botón de BD */
+    #refreshBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #2c3e50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    #refreshBtn:hover {
+      background-color: #34495e;
+    }
+
+    /* Input del comprador */
+    input#comprador {
+      margin-bottom: 15px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ====== INTERFAZ (HTML) ====== -->
+  <h1>Rifa Transparente</h1>
+  <p>Escribe tu nombre y selecciona tu número.</p>
+  <input type="text" id="comprador" placeholder="Tu nombre">
+  <div class="grid" id="grid"></div>
+  <button id="refreshBtn">Actualizar BD</button>
+
+  <!-- ====== LÓGICA (JS) ====== -->
+  <script>
+    // URL de tu WebApp (Apps Script)
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec";
+
+    // Referencias a elementos
+    const grid = document.getElementById("grid");
+    const refreshBtn = document.getElementById("refreshBtn");
+    let numeroSeleccionado = null;
+
+    // Dibujar cuadrícula con estados
+    function dibujarRespaldo(estados = {}) {
+      grid.innerHTML = "";
+      for (let i = 0; i < 100; i++) {
+        const num = i.toString().padStart(2, "0");
+        const div = document.createElement("div");
+        div.className = "number";
+        div.textContent = num;
+
+        // Si está vendido → rojo
+        if (estados[num] === "Vendido") div.classList.add("occupied");
+        // Si es el seleccionado → verde
+        if (numeroSeleccionado === num) div.classList.add("selected");
+
+        // Evento clic en número
+        div.addEventListener("click", () => {
+          if (div.classList.contains("occupied") || numeroSeleccionado !== null) return;
+          numeroSeleccionado = num;
+          div.classList.add("selected");
+
+          const comprador = document.getElementById("comprador").value || "Anonimo";
+          console.log("CLICK detectado → Enviando:", { numero: num, comprador });
+
+          // Enviar al WebApp
+          fetch(webAppUrl, {
+            method: "POST",
+            body: JSON.stringify({ numero: num, comprador })
+          })
+          .then(r => r.text())
+          .then(resp => {
+            console.log("RESPUESTA del WebApp:", resp);
+          })
+          .catch(err => console.error("ERROR al enviar:", err));
+        });
+
+        grid.appendChild(div);
+      }
+    }
+
+    // Consultar hoja de cálculo
+    function cargarDatos() {
+      console.log("Consultando BD...");
+      fetch(webAppUrl)
+        .then(r => r.text())
+        .then(text => {
+          console.log("Respuesta cruda BD:", text);
+          let data;
+          try { data = JSON.parse(text); } catch (e) { console.error("Error JSON:", e); dibujarRespaldo(); return; }
+          const estados = {};
+          data.forEach(item => { estados[item.numero] = item.estado; });
+          dibujarRespaldo(estados);
+        })
+        .catch(err => { console.error("Error al cargar BD:", err); dibujarRespaldo(); });
+    }
+
+    // Cargar datos al inicio
+    cargarDatos();
+
+    // Evento clic en botón BD
+    refreshBtn.addEventListener("click", () => {
+      console.log("BOTÓN BD presionado → refrescando datos...");
+      cargarDatos();
+    });
+  </script>
+</body>
+</html>
