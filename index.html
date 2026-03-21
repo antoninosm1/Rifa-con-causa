@@ -44,21 +44,11 @@
   <input type="text" id="comprador" placeholder="Tu nombre">
   <div class="grid" id="grid"></div>
 
-  <!-- Formulario oculto que enviará datos al WebApp -->
-  <form id="formRifa" 
-        action="https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec" 
-        method="POST" target="_blank" style="display:none;">
-    <input type="hidden" name="numero" id="numeroHidden">
-    <input type="hidden" name="comprador" id="compradorHidden">
-  </form>
-
   <button id="refreshBtn">Ver BD</button>
 
   <script>
     const grid = document.getElementById("grid");
-    const form = document.getElementById("formRifa");
-    const numeroHidden = document.getElementById("numeroHidden");
-    const compradorHidden = document.getElementById("compradorHidden");
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec";
 
     // Dibujar cuadrícula
     for (let i = 0; i < 100; i++) {
@@ -68,75 +58,38 @@
       div.textContent = num;
 
       div.addEventListener("click", () => {
-        // Evitar seleccionar más de un número
         if (document.querySelector(".selected")) {
           alert("Ya seleccionaste un número.");
           return;
         }
 
-        // Al hacer clic, llenamos el formulario oculto y lo enviamos
         const comprador = document.getElementById("comprador").value || "Anonimo";
-        numeroHidden.value = num;
-        compradorHidden.value = comprador;
-        console.log("Enviando al WebApp:", { numero: num, comprador });
-        form.submit(); // envía directamente al WebApp
-        div.classList.add("selected");
+
+        console.log("➡️ Enviando al WebApp:", { numero: num, comprador });
+
+        fetch(WEBAPP_URL, {
+          method: "POST",
+          body: new URLSearchParams({ numero: num, comprador: comprador })
+        })
+        .then(res => res.text())
+        .then(texto => {
+          console.log("✅ Respuesta del WebApp:", texto);
+          alert(texto);
+          div.classList.add("selected");
+        })
+        .catch(err => {
+          console.error("⚠️ Error al contactar WebApp:", err);
+          alert("Error al contactar WebApp: " + err);
+        });
       });
 
       grid.appendChild(div);
     }
 
-    // Botón BD abre la hoja en otra pestaña
     document.getElementById("refreshBtn").addEventListener("click", () => {
-      window.open("https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec", "_blank");
+      console.log("📂 Abriendo BD en nueva pestaña");
+      window.open(WEBAPP_URL, "_blank");
     });
   </script>
-<script>
-  const grid = document.getElementById("grid");
-  const numeroHidden = document.getElementById("numeroHidden");
-  const compradorHidden = document.getElementById("compradorHidden");
-
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec";
-
-  for (let i = 0; i < 100; i++) {
-    const num = i.toString().padStart(2, "0");
-    const div = document.createElement("div");
-    div.className = "number";
-    div.textContent = num;
-
-    div.addEventListener("click", () => {
-      if (document.querySelector(".selected")) {
-        alert("Ya seleccionaste un número.");
-        return;
-      }
-
-      const comprador = document.getElementById("comprador").value || "Anonimo";
-
-      console.log("➡️ Enviando al WebApp:", { numero: num, comprador });
-
-      // Enviar con fetch y capturar respuesta
-      fetch(WEBAPP_URL, {
-        method: "POST",
-        body: new URLSearchParams({ numero: num, comprador: comprador })
-      })
-      .then(res => res.text())
-      .then(texto => {
-        console.log("✅ Respuesta del WebApp:", texto);
-        alert(texto); // opcional, mostrar al usuario
-        div.classList.add("selected");
-      })
-      .catch(err => {
-        console.error("⚠️ Error al contactar WebApp:", err);
-        alert("Error al contactar WebApp: " + err);
-      });
-    });
-
-    grid.appendChild(div);
-  }
-
-  document.getElementById("refreshBtn").addEventListener("click", () => {
-    console.log("📂 Abriendo BD en nueva pestaña");
-    window.open(WEBAPP_URL, "_blank");
-  });
-</script></body>
+</body>
 </html>
