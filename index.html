@@ -91,5 +91,47 @@
       window.open("https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec", "_blank");
     });
   </script>
+  <script>
+  const grid = document.getElementById("grid");
+  const form = document.getElementById("formRifa");
+  const numeroHidden = document.getElementById("numeroHidden");
+  const compradorHidden = document.getElementById("compradorHidden");
+
+  for (let i = 0; i < 100; i++) {
+    const num = i.toString().padStart(2, "0");
+    const div = document.createElement("div");
+    div.className = "number";
+    div.textContent = num;
+
+    div.addEventListener("click", () => {
+      if (document.querySelector(".selected")) {
+        alert("Ya seleccionaste un número.");
+        return;
+      }
+      const comprador = document.getElementById("comprador").value || "Anonimo";
+      numeroHidden.value = num;
+      compradorHidden.value = comprador;
+
+      // Log antes de enviar
+      console.log("➡️ Enviando al WebApp:", { numero: num, comprador });
+
+      // Enviar formulario oculto
+      form.submit();
+
+      // Marcar visualmente
+      div.classList.add("selected");
+
+      // Log después de enviar
+      console.log("✅ Formulario enviado al WebApp");
+    });
+
+    grid.appendChild(div);
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", () => {
+    console.log("📂 Abriendo BD en nueva pestaña");
+    window.open("https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec", "_blank");
+  });
+</script>
 </body>
 </html>
