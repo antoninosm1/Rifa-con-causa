@@ -44,11 +44,25 @@
   <input type="text" id="comprador" placeholder="Tu nombre">
   <div class="grid" id="grid"></div>
 
+  <!-- Formulario oculto que enviará datos al WebApp -->
+  <form id="formRifa" 
+        action="https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec" 
+        method="POST" target="hiddenFrame" style="display:none;">
+    <input type="hidden" name="numero" id="numeroHidden">
+    <input type="hidden" name="comprador" id="compradorHidden">
+  </form>
+
+  <!-- Iframe oculto para recibir la respuesta sin CORS -->
+  <iframe name="hiddenFrame" style="display:none;"></iframe>
+
   <button id="refreshBtn">Ver BD</button>
 
   <script>
     const grid = document.getElementById("grid");
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec";
+    const numeroHidden = document.getElementById("numeroHidden");
+    const compradorHidden = document.getElementById("compradorHidden");
+    const form = document.getElementById("formRifa");
+    const WEBAPP_URL = form.action;
 
     // Dibujar cuadrícula
     for (let i = 0; i < 100; i++) {
@@ -64,23 +78,13 @@
         }
 
         const comprador = document.getElementById("comprador").value || "Anonimo";
+        numeroHidden.value = num;
+        compradorHidden.value = comprador;
 
         console.log("➡️ Enviando al WebApp:", { numero: num, comprador });
-
-        fetch(WEBAPP_URL, {
-          method: "POST",
-          body: new URLSearchParams({ numero: num, comprador: comprador })
-        })
-        .then(res => res.text())
-        .then(texto => {
-          console.log("✅ Respuesta del WebApp:", texto);
-          alert(texto);
-          div.classList.add("selected");
-        })
-        .catch(err => {
-          console.error("⚠️ Error al contactar WebApp:", err);
-          alert("Error al contactar WebApp: " + err);
-        });
+        form.submit(); // envía al WebApp sin CORS
+        div.classList.add("selected");
+        alert("✅ Número " + num + " enviado para " + comprador);
       });
 
       grid.appendChild(div);
