@@ -44,7 +44,7 @@
   <input type="text" id="comprador" placeholder="Tu nombre">
   <div class="grid" id="grid"></div>
 
-  <!-- Formulario oculto que enviará datos al WebApp -->
+  <!-- Formulario oculto -->
   <form id="formRifa" 
         action="https://script.google.com/macros/s/AKfycbxO0kOF8bF4qryKAwPiwtl_ONtMaVIx_54cqCqkdzEqNtJJr4r-uYGj8_IQFJrKDHf_fA/exec" 
         method="POST" target="hiddenFrame" style="display:none;">
@@ -52,7 +52,7 @@
     <input type="hidden" name="comprador" id="compradorHidden">
   </form>
 
-  <!-- Iframe oculto para recibir la respuesta sin CORS -->
+  <!-- Iframe oculto -->
   <iframe name="hiddenFrame" style="display:none;"></iframe>
 
   <button id="refreshBtn">Ver BD</button>
@@ -82,7 +82,7 @@
         compradorHidden.value = comprador;
 
         console.log("➡️ Enviando al WebApp:", { numero: num, comprador });
-        form.submit(); // envía al WebApp sin CORS
+        form.submit(); // envío directo, sin CORS
         div.classList.add("selected");
         alert("✅ Número " + num + " enviado para " + comprador);
       });
