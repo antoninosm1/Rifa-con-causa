@@ -25,7 +25,7 @@
 <body>
 
 <div class="container">
-  <h2>🎟️ Registro de Rifa</h2>
+  <h2>Registro de Rifa</h2>
   
   <div class="form-group">
     <label>Nombre del Comprador:</label>
@@ -38,18 +38,16 @@
   </div>
 
   <div class="btn-group">
-    <button onclick="enviar()" class="btn-primary" id="btnEnviar">Registrar Pago</button>
-    <button onclick="consultar()" class="btn-secondary">Ver Lista</button>
-    <button onclick="consultar(true)" class="btn-danger">Test Error</button>
+    <button class="btn-primary" id="btnEnviar">Registrar Pago</button>
+    <button class="btn-secondary" id="btnConsultar">Ver Lista</button>
+    <button class="btn-danger" id="btnError">Test Error</button>
   </div>
 
-  <!-- Cambié el ID aquí para que coincida con el script -->
   <div class="status" id="estado">Listo para operar</div>
   <pre id="salida">Los resultados aparecerán aquí...</pre>
 </div>
 
 <script>
-  // URL de tu última implementación
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw8YKXck4uAxayGYo1f9G_wC-83__MRidpcZu4BDG14eRR26vmHWsno3Sq_u-l7RpEXjQ/exec";
 
   function limpiarCampos() {
@@ -75,11 +73,11 @@
       out.textContent = JSON.stringify(data, null, 2);
 
       if (data.error) {
-        status.textContent = "❌ " + data.error;
+        status.textContent = "Error: " + data.error;
         status.style.background = "#fee2e2";
         status.style.color = "#dc2626";
       } else {
-        status.textContent = "✅ " + (data.mensaje || "Operación exitosa");
+        status.textContent = "OK: " + (data.mensaje || "Operación exitosa");
         status.style.background = "#dcfce7";
         status.style.color = "#15803d";
         if(options.method === "POST") limpiarCampos();
@@ -88,7 +86,7 @@
 
     } catch (err) {
       out.textContent = "Error crítico: " + err.message;
-      status.textContent = "❌ Error de conexión";
+      status.textContent = "Error de conexión";
       status.style.background = "#fee2e2";
       status.style.color = "#dc2626";
       status.style.display = "block";
@@ -97,7 +95,6 @@
     }
   }
 
-  // FUNCIÓN PARA CONSULTAR (GET)
   function consultar(conError = false) {
     const url = conError ? `${WEBAPP_URL}?error=true` : WEBAPP_URL;
     document.getElementById("estado").textContent = "Consultando...";
@@ -105,7 +102,6 @@
     apiCall(url);
   }
 
-  // FUNCIÓN PARA ENVIAR (POST)
   async function enviar() {
     const num = document.getElementById("numero").value;
     const nom = document.getElementById("comprador").value;
@@ -130,6 +126,11 @@
       headers: { "Content-Type": "application/x-www-form-urlencoded" }
     });
   }
+
+  // Asignación de eventos
+  document.getElementById("btnEnviar").addEventListener("click", enviar);
+  document.getElementById("btnConsultar").addEventListener("click", () => consultar());
+  document.getElementById("btnError").addEventListener("click", () => consultar(true));
 </script>
 
 </body>
