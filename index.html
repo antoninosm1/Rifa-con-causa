@@ -1,3 +1,35 @@
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Prueba básica WebApp</title>
+</head>
+<body>
+  <h1>Prueba básica de conexión</h1>
+  <button id="btn">Consultar WebApp</button>
+  <pre id="salida"></pre>
+
+  <script>
+    // Sustituye por la URL de tu WebApp publicada
+    const WEBAPP_URL = "AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ";
+
+    document.getElementById("btn").addEventListener("click", () => {
+      fetch(WEBAPP_URL)
+        .then(res => res.json())
+        .then(data => {
+          console.log("✅ Respuesta recibida:", data);
+          document.getElementById("salida").textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(err => {
+          console.error("⚠️ Error al consultar WebApp:", err);
+        });
+    });
+  </script>
+</body>
+</html>
+<!--
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -22,7 +54,7 @@
   <input type="text" id="comprador" placeholder="Tu nombre">
   <div class="grid" id="grid"></div>
 
-  <!-- Formulario oculto -->
+  <-- Formulario oculto ->
   <form id="formRifa" 
         action="https://script.google.com/macros/s/AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ/exec" 
         method="POST" target="hiddenFrame" style="display:none;">
@@ -30,7 +62,7 @@
     <input type="hidden" name="comprador" id="compradorHidden">
   </form>
 
-  <!-- Iframe oculto -->
+  <-- Iframe oculto ->
   <iframe name="hiddenFrame" style="display:none;"></iframe>
 
   <button id="refreshBtn">Ver BD</button>
@@ -109,3 +141,4 @@
   </script>
 </body>
 </html>
+-->
