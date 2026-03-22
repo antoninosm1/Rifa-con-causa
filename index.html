@@ -6,26 +6,26 @@
   <title>Gestión Rifa con Causa</title>
   <style>
     :root { --primary: #2563eb; --error: #dc2626; --bg: #f8fafc; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
-    .container { max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
     h2 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: 600; }
     input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
     .btn-group { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
-    button { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: opacity 0.2s; min-width: 140px; }
+    button { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; min-width: 140px; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-secondary { background: #64748b; color: white; }
     .btn-danger { background: var(--error); color: white; }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
-    #salida { background: #0f172a; color: #38bdf8; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; overflow-x: auto; min-height: 40px; }
+    #salida { background: #0f172a; color: #38bdf8; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; overflow-x: auto; min-height: 60px; white-space: pre-wrap; }
     .status { font-weight: bold; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2> Registro de Rifa</h2>
+  <h2>🎟️ Registro de Rifa</h2>
   
   <div class="form-group">
     <label>Nombre del Comprador:</label>
@@ -48,36 +48,44 @@
 </div>
 
 <script>
-  // REEMPLAZA CON TU NUEVA URL DE DESPLIEGUE
+  // IMPORTANTE: Asegúrate de que esta URL sea la de "Cualquiera" (Anyone)
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ/exec";
 
-  const log = (msg, isError = false) => {
+  const log = (contenido, esError = false) => {
     const el = document.getElementById("salida");
     const estado = document.getElementById("estado");
-    el.textContent = typeof msg === 'string' ? msg : JSON.stringify(msg, null, 2);
-    el.style.color = isError ? "#f87171" : "#38bdf8";
-    estado.textContent = isError ? "Error en la operación" : "Operación finalizada";
+    el.textContent = typeof contenido === 'object' ? JSON.stringify(contenido, null, 2) : contenido;
+    el.style.color = esError ? "#f87171" : "#38bdf8";
+    estado.textContent = esError ? "❌ Error en la operación" : "✅ Operación finalizada";
   };
 
   async function apiCall(url, options = {}) {
     try {
       const res = await fetch(url, options);
-      if (!res.ok) throw new Error("Error en servidor: " + res.status);
-      const data = await res.json();
       
-      if (data.error) throw new Error(data.error);
-      log(data);
-      return data;
+      // PASO CLAVE: Leer como texto primero para evitar el error de JSON inesperado
+      const texto = await res.text();
+      
+      try {
+        const data = JSON.parse(texto);
+        if (data.error) throw new Error(data.error);
+        log(data);
+        return data;
+      } catch (parseError) {
+        // Si no es JSON, mostramos el texto de error de Google para saber qué pasa
+        throw new Error("Respuesta no válida del servidor. Detalles:\n" + texto.substring(0, 200));
+      }
+
     } catch (err) {
       log(err.message, true);
-      console.error(err);
+      console.error("Detalle del error:", err);
     }
   }
 
   function consultar(conError = false) {
     document.getElementById("estado").textContent = "Consultando...";
     const url = conError ? `${WEBAPP_URL}?error=true` : WEBAPP_URL;
-    apiCall(url);
+    apiCall(url, { method: 'GET' });
   }
 
   async function enviar() {
@@ -97,6 +105,7 @@
     await apiCall(WEBAPP_URL, {
       method: "POST",
       body: params,
+      mode: 'cors', // Forzamos modo cors
       headers: { "Content-Type": "application/x-www-form-urlencoded" }
     });
 
