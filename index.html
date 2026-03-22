@@ -84,12 +84,17 @@
     }
   }
 
-  // Seleccionar número libre y mostrarlo en el formulario
-  function seleccionarNumero(num, cell) {
-    if (cell.classList.contains("ocupado")) return;
-    document.getElementById("numeroSeleccionado").value = num;
-    document.getElementById("salida").textContent = "Número seleccionado: " + num;
-  }
+// Seleccionar número libre y mostrarlo en el formulario
+function seleccionarNumero(num, cell) {
+  if (cell.classList.contains("ocupado")) return;
+
+  // Guardar número en el formulario
+  document.getElementById("numeroSeleccionado").value = num;
+  document.getElementById("salida").textContent = "Número seleccionado: " + num;
+
+  // Pintar inmediatamente en rojo y bloquear
+  cell.className = "cell ocupado";
+}
 
   // Enviar registro al WebApp
   document.getElementById("formRegistro").addEventListener("submit", async (e) => {
