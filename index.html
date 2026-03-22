@@ -2,77 +2,61 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Prueba Rifa con Causa</title>
+  <title>Rifa Con Causa - Conexión</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
+    #salida { background: #333; color: #fff; padding: 15px; border-radius: 5px; min-height: 50px; white-space: pre-wrap; }
+    button { padding: 10px; margin: 5px; cursor: pointer; }
+  </style>
 </head>
 <body>
-  <h1>Prueba de conexión con alertas y consola</h1>
-  <button id="btnOK">Consultar normal</button>
-  <button id="btnError">Consultar con error</button>
-  <button id="btnPost">Enviar número</button>
-  <pre id="salida"></pre>
+  <h2>Panel de Pruebas Rifa</h2>
+  <button onclick="consultar()">Consultar Lista</button>
+  <button onclick="consultar(true)">Forzar Error</button>
+  <button onclick="enviar()">Registrar Número 99</button>
+  
+  <h4>Consola de salida:</h4>
+  <div id="salida">Esperando comandos...</div>
 
   <script>
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ/exec";
+    // Pega aquí la URL de tu NUEVO DESPLIEGUE
+    const WEBAPP_URL = "TU_NUEVA_URL_AQUÍ";
 
-    function consultar(url) {
-      console.log("📤 Enviando GET a:", url);
-      fetch(url)
-        .then(res => {
-          console.log("📥 Respuesta cruda:", res);
-          return res.json();
-        })
-        .then(data => {
-          console.log("✅ JSON parseado:", data);
-          if (data.error) {
-            alert("⚠️ Error recibido: " + data.error);
-          } else {
-            alert("✅ Respuesta correcta: " + data.mensaje);
-          }
-          document.getElementById("salida").textContent = JSON.stringify(data, null, 2);
-        })
-        .catch(err => {
-          alert("❌ Error de conexión: " + err.message);
-          console.error("❌ Error al consultar WebApp:", err);
-        });
+    async function consultar(conError = false) {
+      const url = conError ? `${WEBAPP_URL}?error=true` : WEBAPP_URL;
+      const log = document.getElementById("salida");
+      log.textContent = "Consultando...";
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        log.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        log.textContent = "Error: " + err.message + "\n\nTip: Verifica que el despliegue sea 'Cualquiera' y hayas autorizado los permisos.";
+      }
     }
 
-    function enviarPost() {
-      const datos = new URLSearchParams();
-      datos.append("numero", "99");
-      datos.append("comprador", "Prueba");
+    async function enviar() {
+      const log = document.getElementById("salida");
+      log.textContent = "Enviando datos...";
 
-      console.log("📤 Enviando POST con:", Object.fromEntries(datos));
-      fetch(WEBAPP_URL, { method: "POST", body: datos })
-        .then(res => {
-          console.log("📥 Respuesta cruda POST:", res);
-          return res.json();
-        })
-        .then(data => {
-          console.log("✅ JSON parseado POST:", data);
-          if (data.error) {
-            alert("⚠️ Error en POST: " + data.error);
-          } else {
-            alert("✅ POST correcto: " + data.mensaje);
-          }
-          document.getElementById("salida").textContent = JSON.stringify(data, null, 2);
-        })
-        .catch(err => {
-          alert("❌ Error de conexión en POST: " + err.message);
-          console.error("❌ Error al consultar WebApp (POST):", err);
+      // Usamos URLSearchParams para que Apps Script lo reciba en e.parameter
+      const params = new URLSearchParams();
+      params.append("numero", "99");
+      params.append("comprador", "Usuario Prueba");
+
+      try {
+        const res = await fetch(WEBAPP_URL, {
+          method: "POST",
+          body: params,
+          headers: { "Content-Type": "application/x-www-form-urlencoded" }
         });
+        const data = await res.json();
+        log.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        log.textContent = "Error en POST: " + err.message;
+      }
     }
-
-    document.getElementById("btnOK").addEventListener("click", () => {
-      consultar(WEBAPP_URL);
-    });
-
-    document.getElementById("btnError").addEventListener("click", () => {
-      consultar(WEBAPP_URL + "?error=true");
-    });
-
-    document.getElementById("btnPost").addEventListener("click", () => {
-      enviarPost();
-    });
   </script>
 </body>
 </html>
