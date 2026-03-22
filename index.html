@@ -2,102 +2,107 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Rifa Con Causa - Conexión</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión Rifa con Causa</title>
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
-    #salida { background: #333; color: #fff; padding: 15px; border-radius: 5px; min-height: 50px; white-space: pre-wrap; }
-    button { padding: 10px; margin: 5px; cursor: pointer; }
+    :root { --primary: #2563eb; --error: #dc2626; --bg: #f8fafc; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+    h2 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: 600; }
+    input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+    .btn-group { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+    button { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: opacity 0.2s; min-width: 140px; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: #64748b; color: white; }
+    .btn-danger { background: var(--error); color: white; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #salida { background: #0f172a; color: #38bdf8; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; overflow-x: auto; min-height: 40px; }
+    .status { font-weight: bold; margin-bottom: 10px; }
   </style>
 </head>
 <body>
-  <h2>Panel de Pruebas Rifa</h2>
-  <button onclick="consultar()">Consultar Lista</button>
-  <button onclick="consultar(true)">Forzar Error</button>
-  <button onclick="enviar()">Registrar Número 99</button>
+
+<div class="container">
+  <h2>🎟️ Registro de Rifa</h2>
   
-  <h4>Consola de salida:</h4>
-  <div id="salida">Esperando comandos...</div>
+  <div class="form-group">
+    <label>Nombre del Comprador:</label>
+    <input type="text" id="comprador" placeholder="Ej. Juan Pérez">
+  </div>
+  
+  <div class="form-group">
+    <label>Número a comprar:</label>
+    <input type="number" id="numero" placeholder="Ej. 05">
+  </div>
 
-  <script>
-    // URL de tu WebApp publicada (termina en /exec)
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ/exec";
+  <div class="btn-group">
+    <button onclick="enviar()" class="btn-primary" id="btnEnviar">Registrar Pago</button>
+    <button onclick="consultar()" class="btn-secondary">Ver Lista</button>
+    <button onclick="consultar(true)" class="btn-danger">Test Error</button>
+  </div>
 
-    async function consultar(conError = false) {
-      const url = conError ? `${WEBAPP_URL}?error=true` : WEBAPP_URL;
-      const log = document.getElementById("salida");
-      log.textContent = "Consultando...";
-      console.log("📤 Enviando GET a:", url);
+  <div class="status" id="estado">Listo para operar</div>
+  <pre id="salida">Los resultados aparecerán aquí...</pre>
+</div>
 
-      try {
-        const res = await fetch(url);
-        console.log("📥 Respuesta cruda:", res);
+<script>
+  // REEMPLAZA CON TU NUEVA URL DE DESPLIEGUE
+  const WEBAPP_URL = "TU_NUEVA_URL_AQUÍ";
 
-        // Para depuración: ver texto antes de parsear
-        const texto = await res.text();
-        console.log("📄 Texto recibido:", texto);
+  const log = (msg, isError = false) => {
+    const el = document.getElementById("salida");
+    const estado = document.getElementById("estado");
+    el.textContent = typeof msg === 'string' ? msg : JSON.stringify(msg, null, 2);
+    el.style.color = isError ? "#f87171" : "#38bdf8";
+    estado.textContent = isError ? "❌ Error en la operación" : "✅ Operación finalizada";
+  };
 
-        try {
-          const data = JSON.parse(texto);
-          console.log("✅ JSON parseado:", data);
-          if (data.error) {
-            alert("⚠️ Error recibido: " + data.error);
-          } else {
-            alert("✅ Respuesta correcta: " + data.mensaje);
-          }
-          log.textContent = JSON.stringify(data, null, 2);
-        } catch (parseErr) {
-          alert("❌ Error al parsear JSON: " + parseErr.message);
-          console.error("❌ Error parseando:", parseErr);
-          log.textContent = "Texto recibido no es JSON:\n\n" + texto;
-        }
-
-      } catch (err) {
-        alert("❌ Error de conexión: " + err.message);
-        console.error("❌ Error al consultar WebApp:", err);
-        log.textContent = "Error: " + err.message + "\n\nTip: Verifica que el despliegue sea 'Cualquiera' y hayas autorizado los permisos.";
-      }
+  async function apiCall(url, options = {}) {
+    try {
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error("Error en servidor: " + res.status);
+      const data = await res.json();
+      
+      if (data.error) throw new Error(data.error);
+      log(data);
+      return data;
+    } catch (err) {
+      log(err.message, true);
+      console.error(err);
     }
+  }
 
-    async function enviar() {
-      const log = document.getElementById("salida");
-      log.textContent = "Enviando datos...";
-      const params = new URLSearchParams();
-      params.append("numero", "99");
-      params.append("comprador", "Usuario Prueba");
-      console.log("📤 Enviando POST con:", Object.fromEntries(params));
+  function consultar(conError = false) {
+    document.getElementById("estado").textContent = "Consultando...";
+    const url = conError ? `${WEBAPP_URL}?error=true` : WEBAPP_URL;
+    apiCall(url);
+  }
 
-      try {
-        const res = await fetch(WEBAPP_URL, {
-          method: "POST",
-          body: params,
-          headers: { "Content-Type": "application/x-www-form-urlencoded" }
-        });
-        console.log("📥 Respuesta cruda POST:", res);
+  async function enviar() {
+    const btn = document.getElementById("btnEnviar");
+    const num = document.getElementById("numero").value;
+    const nom = document.getElementById("comprador").value;
 
-        const texto = await res.text();
-        console.log("📄 Texto recibido POST:", texto);
+    if (!num || !nom) return alert("Por favor llena ambos campos");
 
-        try {
-          const data = JSON.parse(texto);
-          console.log("✅ JSON parseado POST:", data);
-          if (data.error) {
-            alert("⚠️ Error en POST: " + data.error);
-          } else {
-            alert("✅ POST correcto: " + data.mensaje);
-          }
-          log.textContent = JSON.stringify(data, null, 2);
-        } catch (parseErr) {
-          alert("❌ Error al parsear JSON en POST: " + parseErr.message);
-          console.error("❌ Error parseando POST:", parseErr);
-          log.textContent = "Texto recibido no es JSON:\n\n" + texto;
-        }
+    btn.disabled = true;
+    document.getElementById("estado").textContent = "Registrando...";
 
-      } catch (err) {
-        alert("❌ Error de conexión en POST: " + err.message);
-        console.error("❌ Error al consultar WebApp (POST):", err);
-        log.textContent = "Error en POST: " + err.message;
-      }
-    }
-  </script>
+    const params = new URLSearchParams();
+    params.append("numero", num);
+    params.append("comprador", nom);
+
+    await apiCall(WEBAPP_URL, {
+      method: "POST",
+      body: params,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }
+    });
+
+    btn.disabled = false;
+  }
+</script>
+
 </body>
 </html>
