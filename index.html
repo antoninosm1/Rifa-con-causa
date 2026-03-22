@@ -1,29 +1,44 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Prueba básica WebApp</title>
+  <title>Prueba con try/catch</title>
 </head>
 <body>
-  <h1>Prueba básica de conexión</h1>
-  <button id="btn">Consultar WebApp</button>
+  <h1>Prueba de conexión con alertas</h1>
+  <button id="btnOK">Consultar normal</button>
+  <button id="btnError">Consultar con error</button>
   <pre id="salida"></pre>
 
   <script>
     // ⚠️ Sustituye por la URL de tu WebApp publicada (termina en /exec)
-    const WEBAPP_URL = "https://docs.google.com/spreadsheets/d/17kaYT81DBVP8G7LeaMV1Thic32bwL528cN4DngzF4lQ/edit?gid=0#gid=0";
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ/exec";
 
-    document.getElementById("btn").addEventListener("click", () => {
-      fetch(WEBAPP_URL)
+    function consultar(url) {
+      fetch(url)
         .then(res => res.json())
         .then(data => {
-          console.log("✅ Respuesta recibida:", data);
+          if (data.error) {
+            alert("⚠️ El WebApp devolvió un error: " + data.error);
+            console.error("Error recibido:", data.error);
+          } else {
+            alert("✅ Respuesta correcta: " + data.mensaje);
+            console.log("Respuesta recibida:", data);
+          }
           document.getElementById("salida").textContent = JSON.stringify(data, null, 2);
         })
         .catch(err => {
-          console.error("⚠️ Error al consultar WebApp:", err);
+          alert("❌ Error de conexión: " + err.message);
+          console.error("Error al consultar WebApp:", err);
         });
+    }
+
+    document.getElementById("btnOK").addEventListener("click", () => {
+      consultar(WEBAPP_URL);
+    });
+
+    document.getElementById("btnError").addEventListener("click", () => {
+      consultar(WEBAPP_URL + "?error=true");
     });
   </script>
 </body>
