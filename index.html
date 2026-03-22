@@ -5,32 +5,34 @@
   <title>Prueba Rifa con Causa</title>
 </head>
 <body>
-  <h1>Prueba de conexión con alertas</h1>
+  <h1>Prueba de conexión con alertas y consola</h1>
   <button id="btnOK">Consultar normal</button>
   <button id="btnError">Consultar con error</button>
   <button id="btnPost">Enviar número</button>
   <pre id="salida"></pre>
 
   <script>
-    // ⚠️ URL de tu WebApp publicada
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ/exec";
 
     function consultar(url) {
+      console.log("📤 Enviando GET a:", url);
       fetch(url)
-        .then(res => res.json())
+        .then(res => {
+          console.log("📥 Respuesta cruda:", res);
+          return res.json();
+        })
         .then(data => {
+          console.log("✅ JSON parseado:", data);
           if (data.error) {
             alert("⚠️ Error recibido: " + data.error);
-            console.error("Error:", data.error);
           } else {
             alert("✅ Respuesta correcta: " + data.mensaje);
-            console.log("Respuesta:", data);
           }
           document.getElementById("salida").textContent = JSON.stringify(data, null, 2);
         })
         .catch(err => {
           alert("❌ Error de conexión: " + err.message);
-          console.error("Error de conexión:", err);
+          console.error("❌ Error al consultar WebApp:", err);
         });
     }
 
@@ -39,9 +41,14 @@
       datos.append("numero", "99");
       datos.append("comprador", "Prueba");
 
+      console.log("📤 Enviando POST con:", Object.fromEntries(datos));
       fetch(WEBAPP_URL, { method: "POST", body: datos })
-        .then(res => res.json())
+        .then(res => {
+          console.log("📥 Respuesta cruda POST:", res);
+          return res.json();
+        })
         .then(data => {
+          console.log("✅ JSON parseado POST:", data);
           if (data.error) {
             alert("⚠️ Error en POST: " + data.error);
           } else {
@@ -51,6 +58,7 @@
         })
         .catch(err => {
           alert("❌ Error de conexión en POST: " + err.message);
+          console.error("❌ Error al consultar WebApp (POST):", err);
         });
     }
 
@@ -68,116 +76,3 @@
   </script>
 </body>
 </html>
-<!--
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Rifa con Causa</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; }
-    h1 { color: #2c3e50; }
-    .grid { display: grid; grid-template-columns: repeat(10, 60px); gap: 8px; justify-content: center; margin-top: 20px; }
-    .number { padding: 12px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer; background-color: #e0f7fa; transition: background-color 0.3s, transform 0.2s; font-weight: bold; text-align: center; }
-    .number:hover { background-color: #80deea; transform: scale(1.05); }
-    .occupied { background-color: #ef5350; color: white; cursor: not-allowed; border: 1px solid #c62828; }
-    .selected { background-color: #4caf50; color: white; cursor: not-allowed; border: 1px solid #2e7d32; }
-    #refreshBtn, #reloadBtn { margin: 10px; padding: 10px 20px; background-color: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
-    #refreshBtn:hover, #reloadBtn:hover { background-color: #34495e; }
-    input#comprador { margin-bottom: 15px; padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 200px; }
-  </style>
-</head>
-<body>
-  <h1>Rifa con Causa</h1>
-  <p>Escribe tu nombre y selecciona tu número.</p>
-  <input type="text" id="comprador" placeholder="Tu nombre">
-  <div class="grid" id="grid"></div>
-
-  <-- Formulario oculto ->
-  <form id="formRifa" 
-        action="https://script.google.com/macros/s/AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ/exec" 
-        method="POST" target="hiddenFrame" style="display:none;">
-    <input type="hidden" name="numero" id="numeroHidden">
-    <input type="hidden" name="comprador" id="compradorHidden">
-  </form>
-
-  <-- Iframe oculto ->
-  <iframe name="hiddenFrame" style="display:none;"></iframe>
-
-  <button id="refreshBtn">Ver BD</button>
-  <button id="reloadBtn">Refrescar estado</button>
-
-  <script>
-    const grid = document.getElementById("grid");
-    const numeroHidden = document.getElementById("numeroHidden");
-    const compradorHidden = document.getElementById("compradorHidden");
-    const form = document.getElementById("formRifa");
-    const WEBAPP_URL = form.action;
-
-    // Dibujar cuadrícula
-    for (let i = 0; i < 100; i++) {
-      const num = i.toString().padStart(2, "0");
-      const div = document.createElement("div");
-      div.className = "number";
-      div.textContent = num;
-
-      div.addEventListener("click", () => {
-        if (div.classList.contains("occupied")) {
-          alert("Número ya ocupado.");
-          return;
-        }
-        if (document.querySelector(".selected")) {
-          alert("Ya seleccionaste un número.");
-          return;
-        }
-        const comprador = document.getElementById("comprador").value || "Anonimo";
-        numeroHidden.value = num;
-        compradorHidden.value = comprador;
-        console.log("➡️ Enviando al WebApp:", { numero: num, comprador });
-        form.submit();
-        div.classList.add("selected");
-        alert("✅ Número " + num + " enviado para " + comprador);
-      });
-
-      grid.appendChild(div);
-    }
-
-    // Función para consultar BD y pintar ocupados
-    function actualizarEstado() {
-      fetch(WEBAPP_URL)
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            console.error("⚠️ Error desde WebApp:", data.error);
-            return;
-          }
-          console.log("📊 Datos BD recibidos:", data);
-          const ocupados = data.rifa_con_causa.map(row => row[0]);
-          document.querySelectorAll(".number").forEach(div => {
-            if (ocupados.includes(div.textContent) && !div.classList.contains("selected")) {
-              div.classList.add("occupied");
-              console.log("🔴 Ocupado:", div.textContent);
-            }
-          });
-        })
-        .catch(err => console.error("⚠️ Error al cargar BD:", err));
-    }
-
-    // Consultar BD al cargar
-    actualizarEstado();
-
-    // Botón Ver BD
-    document.getElementById("refreshBtn").addEventListener("click", () => {
-      console.log("📂 Abriendo BD en nueva pestaña");
-      window.open(WEBAPP_URL, "_blank");
-    });
-
-    // Botón Refrescar estado
-    document.getElementById("reloadBtn").addEventListener("click", () => {
-      console.log("🔄 Refrescando estado desde BD...");
-      actualizarEstado();
-    });
-  </script>
-</body>
-</html>
--->
