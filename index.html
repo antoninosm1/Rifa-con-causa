@@ -19,19 +19,41 @@
   <div id="salida">Esperando comandos...</div>
 
   <script>
-    // Pega aquí la URL de tu NUEVO DESPLIEGUE
+    // URL de tu WebApp publicada (termina en /exec)
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ/exec";
 
     async function consultar(conError = false) {
       const url = conError ? `${WEBAPP_URL}?error=true` : WEBAPP_URL;
       const log = document.getElementById("salida");
       log.textContent = "Consultando...";
+      console.log("📤 Enviando GET a:", url);
 
       try {
         const res = await fetch(url);
-        const data = await res.json();
-        log.textContent = JSON.stringify(data, null, 2);
+        console.log("📥 Respuesta cruda:", res);
+
+        // Para depuración: ver texto antes de parsear
+        const texto = await res.text();
+        console.log("📄 Texto recibido:", texto);
+
+        try {
+          const data = JSON.parse(texto);
+          console.log("✅ JSON parseado:", data);
+          if (data.error) {
+            alert("⚠️ Error recibido: " + data.error);
+          } else {
+            alert("✅ Respuesta correcta: " + data.mensaje);
+          }
+          log.textContent = JSON.stringify(data, null, 2);
+        } catch (parseErr) {
+          alert("❌ Error al parsear JSON: " + parseErr.message);
+          console.error("❌ Error parseando:", parseErr);
+          log.textContent = "Texto recibido no es JSON:\n\n" + texto;
+        }
+
       } catch (err) {
+        alert("❌ Error de conexión: " + err.message);
+        console.error("❌ Error al consultar WebApp:", err);
         log.textContent = "Error: " + err.message + "\n\nTip: Verifica que el despliegue sea 'Cualquiera' y hayas autorizado los permisos.";
       }
     }
@@ -39,11 +61,10 @@
     async function enviar() {
       const log = document.getElementById("salida");
       log.textContent = "Enviando datos...";
-
-      // Usamos URLSearchParams para que Apps Script lo reciba en e.parameter
       const params = new URLSearchParams();
       params.append("numero", "99");
       params.append("comprador", "Usuario Prueba");
+      console.log("📤 Enviando POST con:", Object.fromEntries(params));
 
       try {
         const res = await fetch(WEBAPP_URL, {
@@ -51,9 +72,29 @@
           body: params,
           headers: { "Content-Type": "application/x-www-form-urlencoded" }
         });
-        const data = await res.json();
-        log.textContent = JSON.stringify(data, null, 2);
+        console.log("📥 Respuesta cruda POST:", res);
+
+        const texto = await res.text();
+        console.log("📄 Texto recibido POST:", texto);
+
+        try {
+          const data = JSON.parse(texto);
+          console.log("✅ JSON parseado POST:", data);
+          if (data.error) {
+            alert("⚠️ Error en POST: " + data.error);
+          } else {
+            alert("✅ POST correcto: " + data.mensaje);
+          }
+          log.textContent = JSON.stringify(data, null, 2);
+        } catch (parseErr) {
+          alert("❌ Error al parsear JSON en POST: " + parseErr.message);
+          console.error("❌ Error parseando POST:", parseErr);
+          log.textContent = "Texto recibido no es JSON:\n\n" + texto;
+        }
+
       } catch (err) {
+        alert("❌ Error de conexión en POST: " + err.message);
+        console.error("❌ Error al consultar WebApp (POST):", err);
         log.textContent = "Error en POST: " + err.message;
       }
     }
