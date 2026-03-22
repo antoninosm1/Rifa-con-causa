@@ -4,23 +4,37 @@
   <meta charset="UTF-8">
   <title>Rifa con Causa</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    /* Contenedor de la cuadrícula */
-    #grid { display: grid; grid-template-columns: repeat(10, 40px); gap: 5px; margin-bottom: 20px; }
-    .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-            border: 1px solid #ccc; cursor: pointer; border-radius: 4px; }
+    body { font-family: sans-serif; padding: 20px; display: flex; justify-content: center; }
+    .container { max-width: 700px; margin: auto; text-align: center; }
+    #grid { display: grid; grid-template-columns: repeat(10, 50px); gap: 6px; justify-content: center; margin: 20px auto; }
+    .cell { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
+            border: 1px solid #ccc; cursor: pointer; border-radius: 4px; font-weight: bold; }
     .libre { background: #dcfce7; color: #15803d; }
     .ocupado { background: #fee2e2; color: #dc2626; cursor: not-allowed; }
+    form { margin-top: 20px; }
+    input { padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 10px 20px; margin-top: 10px; border: none; border-radius: 4px; background: #2563eb; color: white; cursor: pointer; }
+    #salida { margin-top: 20px; background: #0f172a; color: #38bdf8; padding: 10px; border-radius: 6px; font-family: monospace; }
   </style>
 </head>
 <body>
 
-<h2>Rifa con Causa</h2>
+<div class="container">
+  <h2>Rifa con Causa</h2>
 
-<!-- Aquí se dibuja la cuadrícula de números -->
-<div id="grid"></div>
+  <!-- Cuadrícula de números -->
+  <div id="grid"></div>
 
-<pre id="salida">Esperando...</pre>
+  <!-- Formulario para registrar comprador y teléfono -->
+  <form id="formRegistro">
+    <input type="text" id="comprador" placeholder="Nombre del comprador" required>
+    <input type="text" id="telefono" placeholder="Teléfono" required>
+    <input type="hidden" id="numeroSeleccionado">
+    <button type="submit">Registrar Número</button>
+  </form>
+
+  <pre id="salida">Esperando...</pre>
+</div>
 
 <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw8YKXck4uAxayGYo1f9G_wC-83__MRidpcZu4BDG14eRR26vmHWsno3Sq_u-l7RpEXjQ/exec";
@@ -28,16 +42,16 @@
   // Construcción inicial de la cuadrícula (del 00 al 99)
   const grid = document.getElementById("grid");
   for (let i = 0; i < 100; i++) {
-    const numero = i.toString().padStart(2, "0"); // Formatear con dos dígitos
+    const numero = i.toString().padStart(2, "0");
     const cell = document.createElement("div");
-    cell.textContent = numero;          // Mostrar "00", "01", ..., "99"
+    cell.textContent = numero;
     cell.className = "cell libre";
-    cell.dataset.numero = numero;       // Guardar el valor formateado
+    cell.dataset.numero = numero;
     cell.addEventListener("click", () => seleccionarNumero(numero, cell));
     grid.appendChild(cell);
   }
 
-  // Función para consultar al WebApp y actualizar la cuadrícula
+  // Consultar ocupados/libres desde la hoja
   async function consultar() {
     try {
       const res = await fetch(WEBAPP_URL);
@@ -49,16 +63,17 @@
         return;
       }
 
-      // Reiniciar todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
 
-      // Marcar como ocupados los números que vienen de la hoja
       data.datos.forEach(fila => {
         const numero = fila[0];
+        const comprador = fila[1];
         if (numero) {
           const numStr = numero.toString().padStart(2, "0");
           const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
-          if (cell) cell.className = "cell ocupado";
+          if (cell && comprador && comprador.trim() !== "") {
+            cell.className = "cell ocupado";
+          }
         }
       });
 
@@ -68,15 +83,24 @@
     }
   }
 
-  // Función para seleccionar un número libre y enviarlo al WebApp
-  async function seleccionarNumero(num, cell) {
+  // Seleccionar número libre y mostrarlo en el formulario
+  function seleccionarNumero(num, cell) {
     if (cell.classList.contains("ocupado")) return;
+    document.getElementById("numeroSeleccionado").value = num;
+    document.getElementById("salida").textContent = "Número seleccionado: " + num;
+  }
 
-    const comprador = prompt("Nombre del comprador para el número " + num);
-    if (!comprador) return;
+  // Enviar registro al WebApp
+  document.getElementById("formRegistro").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const num = document.getElementById("numeroSeleccionado").value;
+    const comprador = document.getElementById("comprador").value;
+    const telefono = document.getElementById("telefono").value;
 
-    const telefono = prompt("Teléfono del comprador para el número " + num);
-    if (!telefono) return;
+    if (!num) {
+      alert("Selecciona un número en la cuadrícula primero");
+      return;
+    }
 
     const params = new URLSearchParams();
     params.append("numero", num);
@@ -96,14 +120,15 @@
         alert("Error: " + data.error);
       } else {
         alert("Registro exitoso: " + data.numero);
-        consultar(); // refrescar cuadrícula
+        document.getElementById("formRegistro").reset();
+        consultar();
       }
     } catch (err) {
       alert("Error de conexión: " + err.message);
     }
-  }
+  });
 
-  // Al cargar la página, se consulta la hoja y se pinta la cuadrícula
+  // Cargar estado inicial
   consultar();
 </script>
 
