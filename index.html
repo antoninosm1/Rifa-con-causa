@@ -2,16 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Prueba con try/catch</title>
+  <title>Prueba Rifa con Causa</title>
 </head>
 <body>
   <h1>Prueba de conexión con alertas</h1>
   <button id="btnOK">Consultar normal</button>
   <button id="btnError">Consultar con error</button>
+  <button id="btnPost">Enviar número</button>
   <pre id="salida"></pre>
 
   <script>
-    // ⚠️ Sustituye por la URL de tu WebApp publicada (termina en /exec)
+    // ⚠️ URL de tu WebApp publicada
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwUFTQ7LA0TXPyj2W94NhjsFjIOFabgB6lJjW14rKcUc2uWmh98P8cFfl-d13wA9k-fRQ/exec";
 
     function consultar(url) {
@@ -19,17 +20,37 @@
         .then(res => res.json())
         .then(data => {
           if (data.error) {
-            alert("⚠️ El WebApp devolvió un error: " + data.error);
-            console.error("Error recibido:", data.error);
+            alert("⚠️ Error recibido: " + data.error);
+            console.error("Error:", data.error);
           } else {
             alert("✅ Respuesta correcta: " + data.mensaje);
-            console.log("Respuesta recibida:", data);
+            console.log("Respuesta:", data);
           }
           document.getElementById("salida").textContent = JSON.stringify(data, null, 2);
         })
         .catch(err => {
           alert("❌ Error de conexión: " + err.message);
-          console.error("Error al consultar WebApp:", err);
+          console.error("Error de conexión:", err);
+        });
+    }
+
+    function enviarPost() {
+      const datos = new URLSearchParams();
+      datos.append("numero", "99");
+      datos.append("comprador", "Prueba");
+
+      fetch(WEBAPP_URL, { method: "POST", body: datos })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            alert("⚠️ Error en POST: " + data.error);
+          } else {
+            alert("✅ POST correcto: " + data.mensaje);
+          }
+          document.getElementById("salida").textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(err => {
+          alert("❌ Error de conexión en POST: " + err.message);
         });
     }
 
@@ -39,6 +60,10 @@
 
     document.getElementById("btnError").addEventListener("click", () => {
       consultar(WEBAPP_URL + "?error=true");
+    });
+
+    document.getElementById("btnPost").addEventListener("click", () => {
+      enviarPost();
     });
   </script>
 </body>
