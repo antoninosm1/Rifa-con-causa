@@ -5,7 +5,8 @@
   <title>Rifa con Causa</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    #grid { display: grid; grid-template-columns: repeat(10, 40px); gap: 5px; }
+    /* Contenedor de la cuadrícula */
+    #grid { display: grid; grid-template-columns: repeat(10, 40px); gap: 5px; margin-bottom: 20px; }
     .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
             border: 1px solid #ccc; cursor: pointer; border-radius: 4px; }
     .libre { background: #dcfce7; color: #15803d; }
@@ -15,13 +16,17 @@
 <body>
 
 <h2>Rifa con Causa</h2>
+
+<!-- Aquí se dibuja la cuadrícula de números -->
 <div id="grid"></div>
+
 <pre id="salida">Esperando...</pre>
 
 <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw8YKXck4uAxayGYo1f9G_wC-83__MRidpcZu4BDG14eRR26vmHWsno3Sq_u-l7RpEXjQ/exec";
 
-  // Construir cuadrícula 1–100
+  // Construcción inicial de la cuadrícula (del 1 al 100)
+  // Cada celda se crea como un DIV con clase "cell libre"
   const grid = document.getElementById("grid");
   for (let i = 1; i <= 100; i++) {
     const cell = document.createElement("div");
@@ -32,6 +37,7 @@
     grid.appendChild(cell);
   }
 
+  // Función para consultar al WebApp y actualizar la cuadrícula
   async function consultar() {
     try {
       const res = await fetch(WEBAPP_URL);
@@ -43,10 +49,10 @@
         return;
       }
 
-      // Resetear cuadrícula
+      // Reiniciar todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
 
-      // Marcar ocupados
+      // Marcar como ocupados los números que vienen de la hoja
       data.datos.forEach(fila => {
         const numero = fila[0];
         if (numero) {
@@ -61,6 +67,7 @@
     }
   }
 
+  // Función para seleccionar un número libre y enviarlo al WebApp
   async function seleccionarNumero(num, cell) {
     if (cell.classList.contains("ocupado")) return;
 
@@ -91,7 +98,7 @@
     }
   }
 
-  // Cargar estado inicial
+  // Al cargar la página, se consulta la hoja y se pinta la cuadrícula
   consultar();
 </script>
 
