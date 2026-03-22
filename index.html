@@ -23,17 +23,17 @@
 <pre id="salida">Esperando...</pre>
 
 <script>
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwOcjM4vFSUN8jtZhinUrEvt0-j5pjpPyoN_LJ_Ql-_7xHLQ4bjWVDUno5IvgBaCIu_kw/exec";
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw8YKXck4uAxayGYo1f9G_wC-83__MRidpcZu4BDG14eRR26vmHWsno3Sq_u-l7RpEXjQ/exec";
 
-  // Construcción inicial de la cuadrícula (del 1 al 100)
-  // Cada celda se crea como un DIV con clase "cell libre"
+  // Construcción inicial de la cuadrícula (del 00 al 99)
   const grid = document.getElementById("grid");
-  for (let i = 1; i <= 100; i++) {
+  for (let i = 0; i < 100; i++) {
+    const numero = i.toString().padStart(2, "0"); // Formatear con dos dígitos
     const cell = document.createElement("div");
-    cell.textContent = i;
+    cell.textContent = numero;          // Mostrar "00", "01", ..., "99"
     cell.className = "cell libre";
-    cell.dataset.numero = i;
-    cell.addEventListener("click", () => seleccionarNumero(i, cell));
+    cell.dataset.numero = numero;       // Guardar el valor formateado
+    cell.addEventListener("click", () => seleccionarNumero(numero, cell));
     grid.appendChild(cell);
   }
 
@@ -56,7 +56,8 @@
       data.datos.forEach(fila => {
         const numero = fila[0];
         if (numero) {
-          const cell = document.querySelector(`.cell[data-numero='${numero}']`);
+          const numStr = numero.toString().padStart(2, "0");
+          const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
           if (cell) cell.className = "cell ocupado";
         }
       });
@@ -74,9 +75,13 @@
     const comprador = prompt("Nombre del comprador para el número " + num);
     if (!comprador) return;
 
+    const telefono = prompt("Teléfono del comprador para el número " + num);
+    if (!telefono) return;
+
     const params = new URLSearchParams();
     params.append("numero", num);
     params.append("comprador", comprador);
+    params.append("telefono", telefono);
 
     try {
       const res = await fetch(WEBAPP_URL, {
