@@ -51,24 +51,22 @@
     grid.appendChild(cell);
   }
 
-// Consultar ocupados/libres desde la hoja
-async function consultar() {
-  try {
-    const res = await fetch(WEBAPP_URL);
-    const texto = await res.text();
-    const data = JSON.parse(texto);
+  // Consultar ocupados/libres desde la hoja
+  async function consultar() {
+    try {
+      const res = await fetch(WEBAPP_URL);
+      const texto = await res.text();
+      const data = JSON.parse(texto);
 
-    if (data.error) {
-      document.getElementById("salida").textContent = "Error: " + data.error;
-      return;
-    }
+      if (data.error) {
+        document.getElementById("salida").textContent = "Error: " + data.error;
+        return;
+      }
 
-    // Reiniciar todas las celdas como libres
-    document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
+      document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
 
-    // Marcar ocupados solo si columna B (comprador) tiene valor
-    data.datos.forEach(fila => {
-      try {
+      // Marcar ocupados solo si columna B (comprador) tiene valor
+      data.datos.forEach(fila => {
         const numero = fila[0];
         const comprador = fila[1];
         if (numero) {
@@ -78,16 +76,7 @@ async function consultar() {
             cell.className = "cell ocupado";
           }
         }
-      } catch (errFila) {
-        console.error("Error procesando fila:", errFila);
-      }
-    });
-
-    document.getElementById("salida").textContent = "Lista actualizada";
-  } catch (err) {
-    document.getElementById("salida").textContent = "Error de conexión: " + err.message;
-  }
-}
+      });
 
       document.getElementById("salida").textContent = "Lista actualizada";
     } catch (err) {
