@@ -19,7 +19,7 @@
     .btn-danger { background: var(--error); color: white; }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     #salida { background: #0f172a; color: #38bdf8; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; overflow-x: auto; min-height: 60px; white-space: pre-wrap; }
-    .status { font-weight: bold; margin-bottom: 10px; }
+    .status { font-weight: bold; margin-bottom: 10px; padding: 10px; border-radius: 6px; display: none; }
   </style>
 </head>
 <body>
@@ -43,15 +43,15 @@
     <button onclick="consultar(true)" class="btn-danger">Test Error</button>
   </div>
 
+  <!-- Cambié el ID aquí para que coincida con el script -->
   <div class="status" id="estado">Listo para operar</div>
   <pre id="salida">Los resultados aparecerán aquí...</pre>
 </div>
 
-<!-- ... (Mismo CSS anterior) ... -->
 <script>
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw8YKXck4uAxayGYo1f9G_wC-83__MRidpcZu4BDG14eRR26vmHWsno3Sq_u-l7RpEXjQ/exec"; // Reemplaza cada vez que hagas "Nueva implementación"
+  // URL de tu última implementación
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw8YKXck4uAxayGYo1f9G_wC-83__MRidpcZu4BDG14eRR26vmHWsno3Sq_u-l7RpEXjQ/exec";
 
-  // NUEVA MEJORA: Función para limpiar el formulario tras el éxito
   function limpiarCampos() {
     document.getElementById("numero").value = "";
     document.getElementById("comprador").value = "";
@@ -59,22 +59,30 @@
 
   async function apiCall(url, options = {}) {
     const out = document.getElementById("salida");
-    const status = document.getElementById("status");
+    const status = document.getElementById("estado");
     
     try {
       const res = await fetch(url, options);
       const text = await res.text();
-      const data = JSON.parse(text);
+      
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error("La respuesta no es un JSON válido: " + text.substring(0, 100));
+      }
       
       out.textContent = JSON.stringify(data, null, 2);
 
       if (data.error) {
         status.textContent = "❌ " + data.error;
         status.style.background = "#fee2e2";
+        status.style.color = "#dc2626";
       } else {
         status.textContent = "✅ " + (data.mensaje || "Operación exitosa");
         status.style.background = "#dcfce7";
-        if(options.method === "POST") limpiarCampos(); // Limpia solo si fue un registro
+        status.style.color = "#15803d";
+        if(options.method === "POST") limpiarCampos();
       }
       status.style.display = "block";
 
@@ -82,11 +90,46 @@
       out.textContent = "Error crítico: " + err.message;
       status.textContent = "❌ Error de conexión";
       status.style.background = "#fee2e2";
+      status.style.color = "#dc2626";
       status.style.display = "block";
+    } finally {
+      document.getElementById("btnEnviar").disabled = false;
     }
   }
 
-  // Las funciones enviar() y consultar() se mantienen igual
+  // FUNCIÓN PARA CONSULTAR (GET)
+  function consultar(conError = false) {
+    const url = conError ? `${WEBAPP_URL}?error=true` : WEBAPP_URL;
+    document.getElementById("estado").textContent = "Consultando...";
+    document.getElementById("estado").style.display = "block";
+    apiCall(url);
+  }
+
+  // FUNCIÓN PARA ENVIAR (POST)
+  async function enviar() {
+    const num = document.getElementById("numero").value;
+    const nom = document.getElementById("comprador").value;
+    const btn = document.getElementById("btnEnviar");
+
+    if (!num || !nom) {
+      alert("Por favor llena ambos campos");
+      return;
+    }
+
+    btn.disabled = true;
+    document.getElementById("estado").textContent = "Enviando registro...";
+    document.getElementById("estado").style.display = "block";
+
+    const params = new URLSearchParams();
+    params.append("numero", num);
+    params.append("comprador", nom);
+
+    await apiCall(WEBAPP_URL, {
+      method: "POST",
+      body: params,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }
+    });
+  }
 </script>
 
 </body>
