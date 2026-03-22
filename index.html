@@ -94,45 +94,49 @@ function seleccionarNumero(num, cell) {
 
   // Pintar inmediatamente en rojo y bloquear
   cell.className = "cell ocupado";
-}
+}// Enviar registro al WebApp
+document.getElementById("formRegistro").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const num = document.getElementById("numeroSeleccionado").value;
+  const comprador = document.getElementById("comprador").value;
+  const telefono = document.getElementById("telefono").value;
 
-  // Enviar registro al WebApp
-  document.getElementById("formRegistro").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const num = document.getElementById("numeroSeleccionado").value;
-    const comprador = document.getElementById("comprador").value;
-    const telefono = document.getElementById("telefono").value;
+  if (!num) {
+    alert("Selecciona un número en la cuadrícula primero");
+    return;
+  }
 
-    if (!num) {
-      alert("Selecciona un número en la cuadrícula primero");
-      return;
+  const params = new URLSearchParams();
+  params.append("numero", num);
+  params.append("comprador", comprador);
+  params.append("telefono", telefono);
+
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      body: params,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }
+    });
+    const texto = await res.text();
+    const data = JSON.parse(texto);
+
+    if (data.error) {
+      alert("Error: " + data.error);
+    } else {
+      // Pintar inmediatamente en rojo la celda seleccionada
+      const cell = document.querySelector(`.cell[data-numero='${num}']`);
+      if (cell) cell.className = "cell ocupado";
+
+      document.getElementById("formRegistro").reset();
+      document.getElementById("salida").textContent = "Número " + num + " registrado correctamente";
+
+      // Refrescar cuadrícula desde la hoja para confirmar
+      consultar();
     }
-
-    const params = new URLSearchParams();
-    params.append("numero", num);
-    params.append("comprador", comprador);
-    params.append("telefono", telefono);
-
-    try {
-      const res = await fetch(WEBAPP_URL, {
-        method: "POST",
-        body: params,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
-      });
-      const texto = await res.text();
-      const data = JSON.parse(texto);
-
-      if (data.error) {
-        alert("Error: " + data.error);
-      } else {
-        alert("Registro exitoso: " + data.numero);
-        document.getElementById("formRegistro").reset();
-        consultar();
-      }
-    } catch (err) {
-      alert("Error de conexión: " + err.message);
-    }
-  });
+  } catch (err) {
+    alert("Error de conexión: " + err.message);
+  }
+});
 
   // Cargar estado inicial
   consultar();
