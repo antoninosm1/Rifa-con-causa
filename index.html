@@ -2,135 +2,97 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestión Rifa con Causa</title>
+  <title>Rifa con Causa</title>
   <style>
-    :root { --primary: #2563eb; --error: #dc2626; --bg: #f8fafc; }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
-    .container { max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    h2 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: 600; }
-    input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
-    .btn-group { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
-    button { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; min-width: 140px; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-secondary { background: #64748b; color: white; }
-    .btn-danger { background: var(--error); color: white; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    #salida { background: #0f172a; color: #38bdf8; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; overflow-x: auto; min-height: 60px; white-space: pre-wrap; }
-    .status { font-weight: bold; margin-bottom: 10px; padding: 10px; border-radius: 6px; display: none; }
+    body { font-family: sans-serif; padding: 20px; }
+    #grid { display: grid; grid-template-columns: repeat(10, 40px); gap: 5px; }
+    .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            border: 1px solid #ccc; cursor: pointer; border-radius: 4px; }
+    .libre { background: #dcfce7; color: #15803d; }
+    .ocupado { background: #fee2e2; color: #dc2626; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>Registro de Rifa</h2>
-  
-  <div class="form-group">
-    <label>Nombre del Comprador:</label>
-    <input type="text" id="comprador" placeholder="Ej. Juan Pérez">
-  </div>
-  
-  <div class="form-group">
-    <label>Número a comprar:</label>
-    <input type="number" id="numero" placeholder="Ej. 05">
-  </div>
-
-  <div class="btn-group">
-    <button class="btn-primary" id="btnEnviar">Registrar Pago</button>
-    <button class="btn-secondary" id="btnConsultar">Ver Lista</button>
-    <button class="btn-danger" id="btnError">Test Error</button>
-  </div>
-
-  <div class="status" id="estado">Listo para operar</div>
-  <pre id="salida">Los resultados aparecerán aquí...</pre>
-</div>
+<h2>Rifa con Causa</h2>
+<div id="grid"></div>
+<pre id="salida">Esperando...</pre>
 
 <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw8YKXck4uAxayGYo1f9G_wC-83__MRidpcZu4BDG14eRR26vmHWsno3Sq_u-l7RpEXjQ/exec";
 
-  function limpiarCampos() {
-    document.getElementById("numero").value = "";
-    document.getElementById("comprador").value = "";
+  // Construir cuadrícula 1–100
+  const grid = document.getElementById("grid");
+  for (let i = 1; i <= 100; i++) {
+    const cell = document.createElement("div");
+    cell.textContent = i;
+    cell.className = "cell libre";
+    cell.dataset.numero = i;
+    cell.addEventListener("click", () => seleccionarNumero(i, cell));
+    grid.appendChild(cell);
   }
 
-  async function apiCall(url, options = {}) {
-    const out = document.getElementById("salida");
-    const status = document.getElementById("estado");
-    
+  async function consultar() {
     try {
-      const res = await fetch(url, options);
-      const text = await res.text();
-      
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error("La respuesta no es un JSON válido: " + text.substring(0, 100));
-      }
-      
-      out.textContent = JSON.stringify(data, null, 2);
+      const res = await fetch(WEBAPP_URL);
+      const texto = await res.text();
+      const data = JSON.parse(texto);
 
       if (data.error) {
-        status.textContent = "Error: " + data.error;
-        status.style.background = "#fee2e2";
-        status.style.color = "#dc2626";
-      } else {
-        status.textContent = "OK: " + (data.mensaje || "Operación exitosa");
-        status.style.background = "#dcfce7";
-        status.style.color = "#15803d";
-        if(options.method === "POST") limpiarCampos();
+        document.getElementById("salida").textContent = "Error: " + data.error;
+        return;
       }
-      status.style.display = "block";
 
+      // Resetear cuadrícula
+      document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
+
+      // Marcar ocupados
+      data.datos.forEach(fila => {
+        const numero = fila[0];
+        if (numero) {
+          const cell = document.querySelector(`.cell[data-numero='${numero}']`);
+          if (cell) cell.className = "cell ocupado";
+        }
+      });
+
+      document.getElementById("salida").textContent = "Lista actualizada";
     } catch (err) {
-      out.textContent = "Error crítico: " + err.message;
-      status.textContent = "Error de conexión";
-      status.style.background = "#fee2e2";
-      status.style.color = "#dc2626";
-      status.style.display = "block";
-    } finally {
-      document.getElementById("btnEnviar").disabled = false;
+      document.getElementById("salida").textContent = "Error de conexión: " + err.message;
     }
   }
 
-  function consultar(conError = false) {
-    const url = conError ? `${WEBAPP_URL}?error=true` : WEBAPP_URL;
-    document.getElementById("estado").textContent = "Consultando...";
-    document.getElementById("estado").style.display = "block";
-    apiCall(url);
-  }
+  async function seleccionarNumero(num, cell) {
+    if (cell.classList.contains("ocupado")) return;
 
-  async function enviar() {
-    const num = document.getElementById("numero").value;
-    const nom = document.getElementById("comprador").value;
-    const btn = document.getElementById("btnEnviar");
-
-    if (!num || !nom) {
-      alert("Por favor llena ambos campos");
-      return;
-    }
-
-    btn.disabled = true;
-    document.getElementById("estado").textContent = "Enviando registro...";
-    document.getElementById("estado").style.display = "block";
+    const comprador = prompt("Nombre del comprador para el número " + num);
+    if (!comprador) return;
 
     const params = new URLSearchParams();
     params.append("numero", num);
-    params.append("comprador", nom);
+    params.append("comprador", comprador);
 
-    await apiCall(WEBAPP_URL, {
-      method: "POST",
-      body: params,
-      headers: { "Content-Type": "application/x-www-form-urlencoded" }
-    });
+    try {
+      const res = await fetch(WEBAPP_URL, {
+        method: "POST",
+        body: params,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      });
+      const texto = await res.text();
+      const data = JSON.parse(texto);
+
+      if (data.error) {
+        alert("Error: " + data.error);
+      } else {
+        alert("Registro exitoso: " + data.numero);
+        consultar(); // refrescar cuadrícula
+      }
+    } catch (err) {
+      alert("Error de conexión: " + err.message);
+    }
   }
 
-  // Asignación de eventos
-  document.getElementById("btnEnviar").addEventListener("click", enviar);
-  document.getElementById("btnConsultar").addEventListener("click", () => consultar());
-  document.getElementById("btnError").addEventListener("click", () => consultar(true));
+  // Cargar estado inicial
+  consultar();
 </script>
 
 </body>
