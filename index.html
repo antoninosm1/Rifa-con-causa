@@ -156,7 +156,25 @@
       text-align: center;
       white-space: pre-wrap;
     }
+/* Botón extra para consultar hoja */
+#btnConsultar {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  background: #27ae60;   /* verde contemporáneo */
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  width: 100%;
+  max-width: 400px;
+}
 
+#btnConsultar:hover {
+  background: #1e8449;
+  transform: scale(1.03);
+}
     /* Responsividad */
     @media (max-width: 768px) {
       main { width: 98%; margin: 1rem auto; }
