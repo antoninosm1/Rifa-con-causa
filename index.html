@@ -64,6 +64,19 @@
       color: #2c3e50;
     }
 
+    /* Subtítulos h3 */
+    h3 {
+      text-align: center;
+      margin-top: 1.5rem;
+      margin-bottom: 0.8rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #34495e;
+      background: #eaf0f6;
+      padding: 0.5rem;
+      border-radius: 8px;
+    }
+
     /* Cuadrícula */
     #grid {
       display: grid;
@@ -142,18 +155,7 @@
       text-align: center;
       white-space: pre-wrap;
     }
-/* Estilo para subtítulos h3 */
-h3 {
-  margin-top: 1.5rem;
-  margin-bottom: 0.8rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #34495e;          /* gris azulado contemporáneo */
-  text-align: center;      /* centrados para mayor claridad */
-  background: #eaf0f6;     /* fondo suave */
-  padding: 0.5rem;
-  border-radius: 8px;      /* bordes redondeados */
-}
+
     /* Responsividad */
     @media (max-width: 768px) {
       main { width: 98%; margin: 1rem auto; }
@@ -198,14 +200,14 @@ h3 {
     <h3>Información Importante:</h3>
     <p>💰 Costo del número: $100 MXN</p>
     <p>🛡️ Garantía de Transparencia: Los premios se calculan sobre el total recaudado una vez cubierto el faltante de caja. ¡Entre más números vendamos, más grandes serán los premios!</p>
-    <p>📢 Resultados: El sorteo se realizará el día 07/04/2026 con el sorteo de la loteria nacional y los ganadores serán publicados en esta página y contactados vía telefónica.</p>
+    <p>📢 Resultados: El sorteo se realizará el día 07/04/2026 con el sorteo de la lotería nacional y los ganadores serán publicados en esta página y contactados vía telefónica.</p>
     <p>🤝 Tu apoyo hace la diferencia: Gracias por ayudarnos a recuperar el equilibrio y por confiar en este proceso. ¡Mucha suerte!</p>
   </div>
-    <h3>Escoge el numero que mas te agrade, recuerda que los escogidos no se podran tomar:</h3>
-  <!-- Cuadrícula -->
+
+  <h3>Escoge el número que más te agrade, recuerda que los escogidos no se podrán tomar:</h3>
   <div id="grid"></div>
-    <h3>Coloca tus datos de identificación:</h3>
-  <!-- Formulario -->
+
+  <h3>Coloca tus datos de identificación:</h3>
   <form id="formRegistro">
     <input type="text" id="comprador" placeholder="Nombre del comprador" required>
     <input type="text" id="telefono" placeholder="Teléfono" required>
@@ -227,75 +229,4 @@ h3 {
     cell.className = "cell libre";
     cell.dataset.numero = numero;
     cell.addEventListener("click", () => seleccionarNumero(numero, cell));
-    grid.appendChild(cell);
-  }
-
-  function seleccionarNumero(num, cell) {
-    if (cell.classList.contains("ocupado")) return;
-    document.getElementById("numeroSeleccionado").value = num;
-    document.getElementById("salida").textContent = "Número seleccionado: " + num;
-  }
-  async function consultar() {
-    try {
-      const res = await fetch(WEBAPP_URL);
-      const data = await res.json();
-
-      // Reinicia todas las celdas como libres
-      document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
-
-      // Marca ocupados según datos de la hoja
-      data.datos.forEach(fila => {
-        const numero = fila[0];
-        const comprador = fila[3];
-        if (numero !== "" && comprador && comprador.trim() !== "") {
-          const numStr = numero.toString().padStart(2, "0");
-          const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
-          if (cell) cell.className = "cell ocupado";
-        }
-      });
-
-      document.getElementById("salida").textContent = "Lista actualizada";
-    } catch (err) {
-      document.getElementById("salida").textContent = "Error de conexión: " + err.message;
-    }
-  }
-
-  document.getElementById("formRegistro").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const num = document.getElementById("numeroSeleccionado").value;
-    const comprador = document.getElementById("comprador").value;
-    const telefono = document.getElementById("telefono").value;
-
-    if (!num) {
-      alert("Selecciona un número en la cuadrícula primero");
-      return;
-    }
-
-    const params = new URLSearchParams({ numero: num, comprador, telefono });
-
-    try {
-      const res = await fetch(WEBAPP_URL, { method: "POST", body: params });
-      const data = await res.json();
-
-      if (data.error) {
-        alert("Error: " + data.error);
-      } else {
-        const cell = document.querySelector(`.cell[data-numero='${num}']`);
-        if (cell) cell.className = "cell ocupado";
-
-        document.getElementById("formRegistro").reset();
-        document.getElementById("salida").textContent = "Número " + num + " registrado correctamente";
-
-        consultar();
-      }
-    } catch (err) {
-      alert("Error de conexión: " + err.message);
-    }
-  });
-
-  // Llamada inicial
-  consultar();
-</script>
-
-</body>
-</html>
+    grid.appendChild(cell
