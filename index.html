@@ -220,7 +220,7 @@
     <p>💰 Costo del número: $100 MXN</p>
     <p>🛡️ Garantía de Transparencia: Los premios se calculan sobre el total recaudado una vez cubierto el faltante de caja. ¡Entre más números vendamos, más grandes serán los premios!</p>
     <p>📢 Resultados: El sorteo se realizará el día 07/04/2026 con el sorteo de la lotería nacional y los ganadores serán publicados en esta página y contactados vía telefónica.</p>
-    <p>🤝 Tu apoyo hace la diferencia: Gracias por ayudarnos a recuperar el equilibrio y por confiar en este proceso. ¡Mucha suerte!</p>
+    <p>🤝 Tu apoyo hace la diferencia: Gracias por ayudar y por confiar. ¡Mucha suerte!</p>
   </div>
 
   <h3>Escoge el número que más te agrade, recuerda que los escogidos no se podrán tomar:</h3>
@@ -260,8 +260,35 @@
     document.getElementById("salida").textContent = "Número seleccionado: " + num;
   }
 
-  // Consulta y muestra datos de la hoja
-  async function consultar() {
+  // Función que solo pinta ocupados en la cuadrícula
+  async function marcarOcupados() {
+    try {
+      const res = await fetch(WEBAPP_URL);
+      const data = await res.json();
+
+      if (data.error) return;
+
+      // Reinicia todas las celdas como libres
+      document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
+
+      // Marca ocupados en rojo
+      data.datos.forEach((fila, idx) => {
+        if (idx === 0 && fila[0].toString().toLowerCase().includes("num")) return;
+        const numero   = fila[0]; // Columna A
+        const comprador= fila[3]; // Columna D
+        if (numero && comprador && comprador.trim() !== "") {
+          const numStr = numero.toString().padStart(2, "0");
+          const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
+          if (cell) cell.className = "cell ocupado";
+        }
+      });
+    } catch (err) {
+      console.log("Error al marcar ocupados: " + err.message);
+    }
+  }
+
+  // Función que construye y muestra el listado de la base de datos
+  async function mostrarBaseDatos() {
     try {
       const salida = document.getElementById("salida");
       salida.textContent = "Consultando hoja...";
@@ -274,34 +301,24 @@
         return;
       }
 
-      // Reinicia todas las celdas como libres
-      document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
-
-      // Construye el contenido tipo “base de datos”
       let contenidoHoja = "BASE DE DATOS (Registros reales)\n";
       contenidoHoja += "NUM | COMPRADOR | FECHA\n";
       contenidoHoja += "-------------------------------------------\n";
 
       data.datos.forEach((fila, idx) => {
-        // Saltamos encabezados
         if (idx === 0 && fila[0].toString().toLowerCase().includes("num")) return;
 
         const numero   = fila[0]; // Columna A
         const comprador= fila[3]; // Columna D
         const fecha    = fila[5]; // Columna F
 
-        // Validar número y marcar ocupado
-        if (numero !== "" && numero !== undefined && comprador && comprador.trim() !== "") {
+        if (numero && comprador && comprador.trim() !== "") {
           const numStr = numero.toString().padStart(2, "0");
-          const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
-          if (cell) {
-            cell.className = "cell ocupado"; // Se pinta de rojo
-          }
-          // Teléfono se oculta en la salida, solo se registra en la hoja
           contenidoHoja += `${numStr} | ${comprador} | ${fecha || 'N/A'}\n`;
         }
       });
 
+      contenidoHoja += "\nAbrir hoja original:\n" + HOJA_URL;
       salida.textContent = contenidoHoja;
 
     } catch (err) {
@@ -333,16 +350,16 @@
       } else {
         document.getElementById("formRegistro").reset();
         document.getElementById("salida").textContent = "Número " + num + " guardado con éxito";
-        consultar(); // Refresca la lista y los colores
+        marcarOcupados(); // Refresca la cuadrícula
       }
     } catch (err) {
       alert("Error de conexión: " + err.message);
     }
   });
 
-  // Botón único para ver datos de la hoja y registrar IP
+  // Botón para ver datos de la hoja y registrar IP
   document.getElementById("btnConsultar").addEventListener("click", async (e) => {
-    e.preventDefault(); // Evita que el botón envíe el formulario
+    e.preventDefault();
 
     // Registro silencioso de IP
     try {
@@ -358,11 +375,13 @@
       console.log("No se pudo registrar la IP"); 
     }
 
-    consultar();
+    // Primero refresca ocupados, luego muestra listado
+    await marcarOcupados();
+    await mostrarBaseDatos();
   });
 
-  // Llamada inicial para pintar los números ocupados al abrir la página
-  consultar();
+  // Al cargar la página solo se pintan ocupados en la cuadrícula
+  marcarOcupados();
 </script>
 </body>
 </html>
