@@ -237,9 +237,9 @@
 
   <pre id="salida">Esperando...</pre>
 </main>
-
 <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpLL509GKDl1n5Kv3P4cjIrhtg0tCEJuKp0IGxtjxUG5MXmfNy-HAzDZscIy0yF7844Q/exec";
+
   const grid = document.getElementById("grid");
   for (let i = 0; i < 100; i++) {
     const numero = i.toString().padStart(2, "0");
@@ -248,7 +248,7 @@
     cell.className = "cell libre";
     cell.dataset.numero = numero;
     cell.addEventListener("click", () => seleccionarNumero(numero, cell));
-    grid.appendChild(cell);   // aquí estaba el corte, se cierra correctamente
+    grid.appendChild(cell);   // cierre correcto
   }
 
   function seleccionarNumero(num, cell) {
@@ -265,7 +265,8 @@
       // Reinicia todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
 
-      // Marca ocupados según datos de la hoja
+      // Construye resumen de ocupados
+      let resumen = "Números ocupados:\n";
       data.datos.forEach(fila => {
         const numero = fila[0];
         const comprador = fila[3];
@@ -273,10 +274,11 @@
           const numStr = numero.toString().padStart(2, "0");
           const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
           if (cell) cell.className = "cell ocupado";
+          resumen += `${numStr} - ${comprador}\n`;
         }
       });
 
-      document.getElementById("salida").textContent = "Lista actualizada";
+      document.getElementById("salida").textContent = resumen;
     } catch (err) {
       document.getElementById("salida").textContent = "Error de conexión: " + err.message;
     }
@@ -324,6 +326,5 @@
   // Llamada inicial
   consultar();
 </script>
-
 </body>
 </html>
