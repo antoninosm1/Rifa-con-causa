@@ -232,12 +232,12 @@
     <input type="text" id="telefono" placeholder="Teléfono" required>
     <input type="hidden" id="numeroSeleccionado">
     <button type="submit">Registrar Número</button>
-    <button id="btnConsultar">Ver números ocupados</button>
+    <button id="btnConsultar">Base de Datos</button>
   </form>
 
   <pre id="salida">Esperando...</pre>
 </main>
-<script>
+  <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpLL509GKDl1n5Kv3P4cjIrhtg0tCEJuKp0IGxtjxUG5MXmfNy-HAzDZscIy0yF7844Q/exec";
 
   const grid = document.getElementById("grid");
@@ -248,7 +248,7 @@
     cell.className = "cell libre";
     cell.dataset.numero = numero;
     cell.addEventListener("click", () => seleccionarNumero(numero, cell));
-    grid.appendChild(cell);   // cierre correcto
+    grid.appendChild(cell);
   }
 
   function seleccionarNumero(num, cell) {
@@ -262,10 +262,8 @@
       const res = await fetch(WEBAPP_URL);
       const data = await res.json();
 
-      // Reinicia todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
 
-      // Construye resumen de ocupados
       let resumen = "Números ocupados:\n";
       data.datos.forEach(fila => {
         const numero = fila[0];
@@ -317,13 +315,33 @@
     }
   });
 
-  // Botón extra para consultar manualmente la hoja
-  document.getElementById("btnConsultar").addEventListener("click", () => {
-    consultar();
-    document.getElementById("salida").textContent = "Consultando hoja...";
+  // Nuevo botón para registrar consulta (sin número)
+  document.getElementById("btnConsultar").addEventListener("click", async () => {
+    const comprador = document.getElementById("comprador").value;
+    const telefono = document.getElementById("telefono").value;
+
+    if (!comprador || !telefono) {
+      alert("Ingresa tu nombre y teléfono para registrar la consulta");
+      return;
+    }
+
+    const params = new URLSearchParams({ accion: "registroConsulta", comprador, telefono });
+
+    try {
+      const res = await fetch(WEBAPP_URL, { method: "POST", body: params });
+      const data = await res.json();
+
+      if (data.error) {
+        alert("Error: " + data.error);
+      } else {
+        document.getElementById("formRegistro").reset();
+        document.getElementById("salida").textContent = "Consulta registrada correctamente";
+      }
+    } catch (err) {
+      alert("Error de conexión: " + err.message);
+    }
   });
 
-  // Llamada inicial
   consultar();
 </script>
 </body>
