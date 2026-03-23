@@ -262,8 +262,10 @@
       const res = await fetch(WEBAPP_URL);
       const data = await res.json();
 
+      // Reinicia todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
 
+      // Construye resumen de ocupados
       let resumen = "Números ocupados:\n";
       data.datos.forEach(fila => {
         const numero = fila[0];
@@ -316,33 +318,13 @@
     }
   });
 
-  // Nuevo botón para registrar consulta (sin número)
-  document.getElementById("btnConsultar").addEventListener("click", async () => {
-    const comprador = document.getElementById("comprador").value;
-    const telefono = document.getElementById("telefono").value;
-
-    if (!comprador || !telefono) {
-      alert("Ingresa tu nombre y teléfono para registrar la consulta");
-      return;
-    }
-
-    const params = new URLSearchParams({ accion: "registroConsulta", comprador, telefono });
-
-    try {
-      const res = await fetch(WEBAPP_URL, { method: "POST", body: params });
-      const data = await res.json();
-
-      if (data.error) {
-        alert("Error: " + data.error);
-      } else {
-        document.getElementById("formRegistro").reset();
-        document.getElementById("salida").textContent = "Consulta registrada correctamente";
-      }
-    } catch (err) {
-      alert("Error de conexión: " + err.message);
-    }
+  // Botón único para ver datos de la hoja
+  document.getElementById("btnConsultar").addEventListener("click", () => {
+    consultar();
+    document.getElementById("salida").textContent = "Consultando hoja...";
   });
 
+  // Llamada inicial
   consultar();
 </script>
 </body>
