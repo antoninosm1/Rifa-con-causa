@@ -175,6 +175,16 @@
   background: #1e8449;
   transform: scale(1.03);
 }
+   
+  .aviso-legal {
+    width: 100%;
+    background: #f8d7da; /* rojo suave tipo alerta */
+    color: #721c24;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    border-bottom: 2px solid #f5c6cb;
+  }
     /* Responsividad */
     @media (max-width: 768px) {
       main { width: 98%; margin: 1rem auto; }
@@ -204,10 +214,10 @@
     <h2>Rifa con Causa</h2>
     <p>
       Esta iniciativa nace con el objetivo de sanear un faltante de caja. 
-      Al participar, no solo nos ayudas a recuperarlo, sino que también entras 
+      Al participar, no solo ayudas a recuperarlo, sino que también entras 
       a una bolsa de premios diseñada para recompensar a más ganadores y de manera equitativa. 
-      Esto será después de recuperar el faltante, por lo que pido se vendan la mayor cantidad de números. 
-      Comparte con tus conocidos por favor. La rifa es en la fecha <strong>07/04/2026</strong> con los que se junten...
+      Esto será después de recuperar el faltante, por lo que lo optimo es que se vendan la mayor cantidad de números. 
+      Comparte con tus conocidos por favor. La rifa es en la fecha <strong>07/04/2026</strong> 
     </p>
     <h3>Distribución de la bolsa (sobre el excedente):</h3>
     <ul>
@@ -218,12 +228,12 @@
     </ul>
     <h3>Información Importante:</h3>
     <p>💰 Costo del número: $100 MXN</p>
-    <p>🛡️ Garantía de Transparencia: Los premios se calculan sobre el total recaudado una vez cubierto el faltante de caja. ¡Entre más números vendamos, más grandes serán los premios!</p>
+    <p>🛡️ Garantía de Transparencia: Los premios se calculan sobre el total recaudado. ¡Entre más números vendamos, más grandes serán los premios!</p>
     <p>📢 Resultados: El sorteo se realizará el día 07/04/2026 con el sorteo de la lotería nacional y los ganadores serán publicados en esta página y contactados vía telefónica.</p>
     <p>🤝 Tu apoyo hace la diferencia: Gracias por ayudar y por confiar. ¡Mucha suerte!</p>
   </div>
 
-  <h3>Escoge el número que más te agrade, recuerda que los escogidos no se podrán tomar:</h3>
+  <h3>Escoge el número que más te agrade, recuerda que los números previamente escogidos no se podrán tomar:</h3>
   <div id="grid"></div>
 
   <h3>Coloca tus datos de identificación:</h3>
@@ -237,6 +247,18 @@
 
   <pre id="salida">Esperando...</pre>
 </main>
+    <header class="aviso-legal">
+  <p>
+    Aviso Legal: Esta página es un proyecto comunitario con fines de apoyo y transparencia. 
+    La organización y administración de la rifa se realiza de manera independiente, sin 
+    responsabilidad legal hacia terceros por el uso de la información aquí publicada. 
+    Los participantes aceptan que la compra de números es voluntaria y que los resultados 
+    se basan en el sorteo oficial de la Lotería Nacional. El responsable de la página no 
+    se hace cargo de reclamaciones ajenas al proceso descrito.
+  </p>
+</header>
+
+
   <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwj3GOKtimg96m4c1w72qN5thWc25EvPadFG2jY4CtN19y5R5NyBz1GTzLPAkpwlfxlrw/exec";
   const HOJA_URL = "https://docs.google.com/spreadsheets/d/17kaYT81DBVP8G7LeaMV1Thic32bwL528cN4DngzF4lQ/edit";
@@ -382,6 +404,7 @@
 
   // Al cargar la página solo se pintan ocupados en la cuadrícula
   marcarOcupados();
+    
 </script>
 </body>
 </html>
