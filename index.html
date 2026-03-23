@@ -4,12 +4,7 @@
   <meta charset="UTF-8">
   <title>Rifa con Causa</title>
   <style>
-    /* Reset básico */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: "Segoe UI", Arial, sans-serif;
@@ -19,7 +14,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
       min-height: 100vh;
       padding: 1rem;
     }
@@ -34,7 +28,7 @@
       border-radius: 12px;
     }
 
-    /* Cuadrícula de números */
+    /* Cuadrícula */
     #grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
@@ -44,7 +38,6 @@
       margin: 2rem auto;
     }
 
-    /* Estilo de cada celda */
     .cell {
       padding: 0.8rem;
       border: 1px solid #ccc;
@@ -56,43 +49,12 @@
       transition: background 0.3s;
     }
 
-    .cell:hover {
-      background: #dfe6e9;
-    }
+    .cell:hover { background: #dfe6e9; }
+    .cell.ocupado { background: #ff7675; color: #fff; cursor: not-allowed; }
 
-    .cell.ocupado {
-      background: #ff7675;
-      color: #fff;
-      cursor: not-allowed;
-    }
-
-    /* Responsividad */
     @media (max-width: 600px) {
-      .rifa-causa {
-        padding: 1rem;
-        font-size: 0.95rem;
-      }
-
-      #grid {
-        grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
-        gap: 0.4rem;
-      }
-
-      .cell {
-        padding: 0.6rem;
-        font-size: 0.85rem;
-      }
-    }
-
-    @media (min-width: 1200px) {
-      .rifa-causa {
-        font-size: 1.1rem;
-        line-height: 1.8;
-      }
-
-      .cell {
-        font-size: 1rem;
-      }
+      #grid { grid-template-columns: repeat(auto-fit, minmax(45px, 1fr)); }
+      .cell { padding: 0.6rem; font-size: 0.85rem; }
     }
   </style>
 </head>
@@ -100,13 +62,7 @@
 
   <div class="rifa-causa">
     <h2>Rifa con Causa</h2>
-    <p>
-      Esta iniciativa nace con el objetivo de sanear un faltante de caja. 
-      Al participar, no solo nos ayudas a recuperarlo, sino que también entras 
-      a una bolsa de premios diseñada para recompensar a más ganadores y de manera equitativa. 
-      Esto será después de recuperar el faltante, por lo que pido se vendan la mayor cantidad de números. 
-      Comparte con tus conocidos por favor. La rifa es en la fecha <strong>07/04/2026</strong> con los que se junten...
-    </p>
+    <p>Esta iniciativa nace con el objetivo de sanear un faltante de caja... La rifa es en la fecha <strong>07/04/2026</strong>.</p>
     <h3>Distribución de la bolsa (sobre el excedente):</h3>
     <ul>
       <li>🥇 1er Premio: 40% del acumulado</li>
@@ -115,15 +71,11 @@
       <li>🏅 4to Premio: 10% del acumulado</li>
     </ul>
     <h3>Información Importante:</h3>
-    <div class="info">
-      <p>💰 Costo del número: $[INSERTAR PRECIO] MXN</p>
-      <p>🛡️ Garantía de Transparencia: Los premios se calculan sobre el total recaudado una vez cubierto el faltante de caja. ¡Entre más números vendamos, más grandes serán los premios!</p>
-      <p>📢 Resultados: El sorteo se realizará el día 07/04/2026 y los ganadores serán publicados en esta página y contactados vía telefónica.</p>
-      <p>🤝 Tu apoyo hace la diferencia: Gracias por ayudarnos a recuperar el equilibrio y por confiar en este proceso. ¡Mucha suerte!</p>
-    </div>
+    <p>💰 Costo del número: $[INSERTAR PRECIO] MXN</p>
+    <p>🛡️ Garantía de Transparencia...</p>
   </div>
 
-  <!-- Cuadrícula de números -->
+  <!-- Cuadrícula -->
   <div id="grid"></div>
 
   <!-- Formulario -->
@@ -150,45 +102,30 @@
     grid.appendChild(cell);
   }
 
-  async function consultar() {
-    try {
-      const res = await fetch(WEBAPP_URL);
-      const texto = await res.text();
-      const data = JSON.parse(texto);
-
-      if (data.error) {
-        document.getElementById("salida").textContent = "Error: " + data.error;
-        return;
-      }
-
-      document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
-
-      data.datos.forEach((fila, idx) => {
-        try {
-          const numero = fila[0];
-          const comprador = fila[3];
-          if (numero !== "" && numero !== undefined) {
-            const numStr = numero.toString().padStart(2, "0");
-            const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
-            if (cell && comprador && comprador.trim() !== "") {
-              cell.className = "cell ocupado";
-            }
-          }
-        } catch (errFila) {
-          console.error("Error procesando fila " + idx + ":", errFila);
-        }
-      });
-
-      document.getElementById("salida").textContent = "Lista actualizada";
-    } catch (err) {
-      document.getElementById("salida").textContent = "Error de conexión: " + err.message;
-    }
-  }
-
   function seleccionarNumero(num, cell) {
     if (cell.classList.contains("ocupado")) return;
     document.getElementById("numeroSeleccionado").value = num;
     document.getElementById("salida").textContent = "Número seleccionado: " + num;
+  }
+
+  async function consultar() {
+    try {
+      const res = await fetch(WEBAPP_URL);
+      const data = await res.json();
+      document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
+      data.datos.forEach(fila => {
+        const numero = fila[0];
+        const comprador = fila[3];
+        if (numero !== "" && comprador && comprador.trim() !== "") {
+          const numStr = numero.toString().padStart(2, "0");
+          const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
+          if (cell) cell.className = "cell ocupado";
+        }
+      });
+      document.getElementById("salida").textContent = "Lista actualizada";
+    } catch (err) {
+      document.getElementById("salida").textContent = "Error de conexión: " + err.message;
+    }
   }
 
   document.getElementById("formRegistro").addEventListener("submit", async (e) => {
@@ -196,40 +133,20 @@
     const num = document.getElementById("numeroSeleccionado").value;
     const comprador = document.getElementById("comprador").value;
     const telefono = document.getElementById("telefono").value;
-
-    if (!num) {
-      alert("Selecciona un número en la cuadrícula primero");
-      return;
-    }
-
-    const params = new URLSearchParams();
-    params.append("numero", num);
-    params.append("comprador", comprador);
-    params.append("telefono", telefono);
-
+    if (!num) { alert("Selecciona un número primero"); return; }
+    const params = new URLSearchParams({ numero: num, comprador, telefono });
     try {
-      const res = await fetch(WEBAPP_URL, {
-        method: "POST",
-        body: params,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
-      });
-      const texto = await res.text();
-      const data = JSON.parse(texto);
-
-      if (data.error) {
-        alert("Error: " + data.error);
-      } else {
+      const res = await fetch(WEBAPP_URL, { method: "POST", body: params });
+      const data = await res.json();
+      if (data.error) { alert("Error: " + data.error); }
+      else {
         const cell = document.querySelector(`.cell[data-numero='${num}']`);
         if (cell) cell.className = "cell ocupado";
-
         document.getElementById("formRegistro").reset();
         document.getElementById("salida").textContent = "Número " + num + " registrado correctamente";
-
         consultar();
       }
-    } catch (err) {
-      alert("Error de conexión: " + err.message);
-    }
+    } catch (err) { alert("Error de conexión: " + err.message); }
   });
 
   consultar();
