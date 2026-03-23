@@ -37,7 +37,7 @@
 </div>
 
 <script>
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbweCjFkfrmzMXrljbywS041kmKgHq-tXM1WJEmWUWzHfTWJf7BHSsNe_te8abacxobz/exec";
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw8YKXck4uAxayGYo1f9G_wC-83__MRidpcZu4BDG14eRR26vmHWsno3Sq_u-l7RpEXjQ/exec";
 
   // Construcción inicial de la cuadrícula (del 00 al 99)
   const grid = document.getElementById("grid");
@@ -65,10 +65,10 @@
 
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
 
-      // Marcar ocupados solo si columna B (comprador) tiene valor
+      // Marcar ocupados si columna D (índice 3) tiene valor
       data.datos.forEach(fila => {
-        const numero = fila[0];
-        const comprador = fila[1];
+        const numero = fila[0];       // Columna A: número
+        const comprador = fila[3];    // Columna D: nombre
         if (numero) {
           const numStr = numero.toString().padStart(2, "0");
           const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
@@ -84,59 +84,56 @@
     }
   }
 
-// Seleccionar número libre y mostrarlo en el formulario
-function seleccionarNumero(num, cell) {
-  if (cell.classList.contains("ocupado")) return;
-
-  // Guardar número en el formulario
-  document.getElementById("numeroSeleccionado").value = num;
-  document.getElementById("salida").textContent = "Número seleccionado: " + num;
-
-  // Pintar inmediatamente en rojo y bloquear
-  cell.className = "cell ocupado";
-}// Enviar registro al WebApp
-document.getElementById("formRegistro").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const num = document.getElementById("numeroSeleccionado").value;
-  const comprador = document.getElementById("comprador").value;
-  const telefono = document.getElementById("telefono").value;
-
-  if (!num) {
-    alert("Selecciona un número en la cuadrícula primero");
-    return;
+  // Seleccionar número libre y mostrarlo en el formulario
+  function seleccionarNumero(num, cell) {
+    if (cell.classList.contains("ocupado")) return;
+    document.getElementById("numeroSeleccionado").value = num;
+    document.getElementById("salida").textContent = "Número seleccionado: " + num;
   }
 
-  const params = new URLSearchParams();
-  params.append("numero", num);
-  params.append("comprador", comprador);
-  params.append("telefono", telefono);
+  // Enviar registro al WebApp
+  document.getElementById("formRegistro").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const num = document.getElementById("numeroSeleccionado").value;
+    const comprador = document.getElementById("comprador").value;
+    const telefono = document.getElementById("telefono").value;
 
-  try {
-    const res = await fetch(WEBAPP_URL, {
-      method: "POST",
-      body: params,
-      headers: { "Content-Type": "application/x-www-form-urlencoded" }
-    });
-    const texto = await res.text();
-    const data = JSON.parse(texto);
-
-    if (data.error) {
-      alert("Error: " + data.error);
-    } else {
-      // Pintar inmediatamente en rojo la celda seleccionada
-      const cell = document.querySelector(`.cell[data-numero='${num}']`);
-      if (cell) cell.className = "cell ocupado";
-
-      document.getElementById("formRegistro").reset();
-      document.getElementById("salida").textContent = "Número " + num + " registrado correctamente";
-
-      // Refrescar cuadrícula desde la hoja para confirmar
-      consultar();
+    if (!num) {
+      alert("Selecciona un número en la cuadrícula primero");
+      return;
     }
-  } catch (err) {
-    alert("Error de conexión: " + err.message);
-  }
-});
+
+    const params = new URLSearchParams();
+    params.append("numero", num);
+    params.append("comprador", comprador);
+    params.append("telefono", telefono);
+
+    try {
+      const res = await fetch(WEBAPP_URL, {
+        method: "POST",
+        body: params,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      });
+      const texto = await res.text();
+      const data = JSON.parse(texto);
+
+      if (data.error) {
+        alert("Error: " + data.error);
+      } else {
+        // Pintar inmediatamente en rojo la celda seleccionada
+        const cell = document.querySelector(`.cell[data-numero='${num}']`);
+        if (cell) cell.className = "cell ocupado";
+
+        document.getElementById("formRegistro").reset();
+        document.getElementById("salida").textContent = "Número " + num + " registrado correctamente";
+
+        // Refrescar cuadrícula desde la hoja para confirmar
+        consultar();
+      }
+    } catch (err) {
+      alert("Error de conexión: " + err.message);
+    }
+  });
 
   // Cargar estado inicial
   consultar();
