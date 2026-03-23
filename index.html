@@ -35,7 +35,6 @@
 
   <pre id="salida">Esperando...</pre>
 </div>
-
 <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwrCbLyuW6dumhCA6G2uFYgDr835igQUB4m1F3xWpWr3Doc0GPWkF9N2cOdRxN_cd4mJw/exec";
 
@@ -63,18 +62,23 @@
         return;
       }
 
+      // Reiniciar todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
 
-      // Marcar ocupados si columna D (índice 3) tiene valor
-      data.datos.forEach(fila => {
-        const numero = fila[0];       // Columna A: número
-        const comprador = fila[3];    // Columna D: nombre
-        if (numero) {
-          const numStr = numero.toString().padStart(2, "0");
-          const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
-          if (cell && comprador && comprador.trim() !== "") {
-            cell.className = "cell ocupado";
+      // Recorrer todas las filas y marcar ocupados si columna D (índice 3) tiene valor
+      data.datos.forEach((fila, idx) => {
+        try {
+          const numero = fila[0];       // Columna A: número
+          const comprador = fila[3];    // Columna D: nombre
+          if (numero) {
+            const numStr = numero.toString().padStart(2, "0");
+            const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
+            if (cell && comprador && comprador.trim() !== "") {
+              cell.className = "cell ocupado";
+            }
           }
+        } catch (errFila) {
+          console.error("Error procesando fila " + idx + ":", errFila);
         }
       });
 
@@ -138,6 +142,5 @@
   // Cargar estado inicial
   consultar();
 </script>
-
 </body>
 </html>
