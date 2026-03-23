@@ -26,7 +26,7 @@
 <body>
 
 <div class="container">
-  <h2>🎟️ Rifa con Causa</h2>
+  <h2>Rifa con Causa</h2>
   <p style="color: #64748b;">Toca un número verde para seleccionarlo</p>
 
   <div id="grid"></div>
@@ -94,7 +94,7 @@
 
   function seleccionarNumero(num, cell) {
     if (cell.classList.contains("ocupado")) {
-      salida.textContent = "❌ El " + num + " ya está vendido.";
+      salida.textContent =  El " + num + " ya está vendido.";
       return;
     }
     document.querySelectorAll(".cell").forEach(c => c.classList.remove("seleccionado"));
@@ -126,7 +126,7 @@
       if (data.error) {
         alert("Error: " + data.error);
       } else {
-        alert("✅ ¡Registrado! El número " + num + " ahora es tuyo.");
+        alert("¡Registrado! El número " + num + " ahora es tuyo.");
         e.target.reset();
         document.getElementById("numeroSeleccionado").value = "";
         await consultar();
