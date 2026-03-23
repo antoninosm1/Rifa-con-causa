@@ -16,7 +16,7 @@
     button { padding: 10px 20px; margin-top: 10px; border: none; border-radius: 4px; background: #2563eb; color: white; cursor: pointer; }
     #salida { margin-top: 20px; background: #0f172a; color: #38bdf8; padding: 10px; border-radius: 6px; font-family: monospace; }
     /* Contenedor principal del texto de la rifa */
-.rifa-causa {
+    .rifa-causa {
   max-width: 800px;
   margin: 2rem auto;
   padding: 2rem;
@@ -28,7 +28,6 @@
   color: #333;
 }
 
-/* Título */
 .rifa-causa h2 {
   text-align: center;
   font-size: 1.8rem;
@@ -37,20 +36,24 @@
   font-weight: 700;
 }
 
-/* Párrafos introductorios */
+.rifa-causa h3 {
+  margin-top: 1.5rem;
+  font-size: 1.2rem;
+  color: #34495e;
+}
+
 .rifa-causa p {
   margin-bottom: 1rem;
   font-size: 1rem;
 }
 
-/* Lista de premios */
-.rifa-causa ul {
+.rifa-causa ul.premios {
   list-style: none;
   padding: 0;
   margin: 1rem 0;
 }
 
-.rifa-causa ul li {
+.rifa-causa ul.premios li {
   background: #f5f7fa;
   margin: 0.5rem 0;
   padding: 0.8rem 1rem;
@@ -60,12 +63,6 @@
   align-items: center;
 }
 
-.rifa-causa ul li::before {
-  content: "🎁";
-  margin-right: 0.6rem;
-}
-
-/* Sección de información importante */
 .rifa-causa .info {
   margin-top: 1.5rem;
   padding: 1rem;
@@ -78,42 +75,37 @@
   margin: 0.5rem 0;
   font-size: 0.95rem;
 }
-
-/* Iconos destacados */
-.rifa-causa .info p::before {
-  margin-right: 0.5rem;
-}
-
-/* Mensaje final */
-.rifa-causa .final {
-  margin-top: 1.5rem;
-  text-align: center;
-  font-weight: 600;
-  color: #27ae60;
-  font-size: 1.1rem;
-}
   </style>
 </head>
 <body>
 
-<div class="container">
+<div class="rifa-causa">
   <h2>Rifa con Causa</h2>
-<p>"Esta iniciativa nace con el objetivo de sanear un faltante de caja. Al participar, no solo nos ayudas a recuperarlo, <br>
-  sino que también entras a una bolsa de premios diseñada para recompensar a más ganadores y de manera equitativa, <br>
-  esto sera después de recuperar el faltante por lo que pido se vendan la mayor cantidad de números, comparte con tus <br>
-  conocidos por favor, la rifa es en la fecha 07/04/2026 con los que se junten...":<br>
-Distribución de la bolsa (sobre el excedente):<br>
-  
-🥇 1er Premio: 40% del acumulado.<br>
-🥈 2do Premio: 30% del acumulado.<br>
-🥉 3er Premio: 20% del acumulado.<br>
-🏅 4to Premio: 10% del acumulado.<br>
-Información Importante:<br><br>
-💰 Costo del número: $[INSERTAR PRECIO] MXN.<br>
-🛡️ Garantía de Transparencia: Los premios se calculan sobre el total recaudado una vez cubierto el faltante de caja. ¡Entre más números vendamos, más grandes serán los premios!<br>
-📢 Resultados: El sorteo se realizará el día 07/04/2026 y los ganadores serán publicados en esta página y contactados vía telefónica.<br>
-🤝 Tu apoyo hace la diferencia: Gracias por ayudarnos a recuperar el equilibrio y por confiar en este proceso. ¡Mucha suerte!<br>
-</p>
+
+  <p>
+    Esta iniciativa nace con el objetivo de sanear un faltante de caja. 
+    Al participar, no solo nos ayudas a recuperarlo, sino que también entras 
+    a una bolsa de premios diseñada para recompensar a más ganadores y de manera equitativa. 
+    Esto será después de recuperar el faltante, por lo que pido se vendan la mayor cantidad de números. 
+    Comparte con tus conocidos por favor. La rifa es en la fecha <strong>07/04/2026</strong> con los que se junten...
+  </p>
+
+  <h3>Distribución de la bolsa (sobre el excedente):</h3>
+  <ul class="premios">
+    <li>🥇 1er Premio: 40% del acumulado</li>
+    <li>🥈 2do Premio: 30% del acumulado</li>
+    <li>🥉 3er Premio: 20% del acumulado</li>
+    <li>🏅 4to Premio: 10% del acumulado</li>
+  </ul>
+
+  <h3>Información Importante:</h3>
+  <div class="info">
+    <p>💰 Costo del número: $[INSERTAR PRECIO] MXN</p>
+    <p>🛡️ Garantía de Transparencia: Los premios se calculan sobre el total recaudado una vez cubierto el faltante de caja. ¡Entre más números vendamos, más grandes serán los premios!</p>
+    <p>📢 Resultados: El sorteo se realizará el día 07/04/2026 y los ganadores serán publicados en esta página y contactados vía telefónica.</p>
+    <p>🤝 Tu apoyo hace la diferencia: Gracias por ayudarnos a recuperar el equilibrio y por confiar en este proceso. ¡Mucha suerte!</p>
+  </div>
+</div>
   <!-- Cuadrícula de números -->
   <div id="grid"></div>
 
