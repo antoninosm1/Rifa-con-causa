@@ -77,17 +77,18 @@
       border-radius: 8px;
     }
 
-    /* Cuadrícula */
-    #grid {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr); /* más angosta: 8 columnas */
-      gap: 0.6rem;
-      margin: 2rem auto;
-      background: #fff;
-      padding: 1rem;
-      border-radius: 12px;
-      border: 2px solid #e0e0e0;
-    }
+/* Cuadrícula */
+#grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr); /* cuadrado 10x10 */
+  gap: 0.6rem;
+  margin: 2rem auto;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  max-width: 600px;   /* controla el ancho total */
+}
 
     .cell {
       padding: 0.8rem;
