@@ -11,7 +11,6 @@
       box-sizing: border-box;
     }
 
-    /* Contenedor general */
     body {
       font-family: "Segoe UI", Arial, sans-serif;
       background: #fafafa;
@@ -19,16 +18,15 @@
       line-height: 1.6;
       display: flex;
       flex-direction: column;
-      align-items: center;   /* centra todo horizontalmente */
+      align-items: center;
       justify-content: flex-start;
       min-height: 100vh;
       padding: 1rem;
     }
 
-    /* Bloque de explicación de la rifa */
     .rifa-causa {
       width: 100%;
-      max-width: 900px;       /* límite en pantallas grandes */
+      max-width: 900px;
       margin: 1rem auto;
       padding: 1.5rem;
       background: #fff;
@@ -46,7 +44,7 @@
       margin: 2rem auto;
     }
 
-    /* Celdas de la cuadrícula */
+    /* Estilo de cada celda */
     .cell {
       padding: 0.8rem;
       border: 1px solid #ccc;
@@ -68,7 +66,7 @@
       cursor: not-allowed;
     }
 
-    /* Responsividad: pantallas pequeñas */
+    /* Responsividad */
     @media (max-width: 600px) {
       .rifa-causa {
         padding: 1rem;
@@ -86,7 +84,6 @@
       }
     }
 
-    /* Responsividad: pantallas grandes */
     @media (min-width: 1200px) {
       .rifa-causa {
         font-size: 1.1rem;
@@ -103,7 +100,6 @@
 
   <div class="rifa-causa">
     <h2>Rifa con Causa</h2>
-
     <p>
       Esta iniciativa nace con el objetivo de sanear un faltante de caja. 
       Al participar, no solo nos ayudas a recuperarlo, sino que también entras 
@@ -111,15 +107,13 @@
       Esto será después de recuperar el faltante, por lo que pido se vendan la mayor cantidad de números. 
       Comparte con tus conocidos por favor. La rifa es en la fecha <strong>07/04/2026</strong> con los que se junten...
     </p>
-
     <h3>Distribución de la bolsa (sobre el excedente):</h3>
-    <ul class="premios">
+    <ul>
       <li>🥇 1er Premio: 40% del acumulado</li>
       <li>🥈 2do Premio: 30% del acumulado</li>
       <li>🥉 3er Premio: 20% del acumulado</li>
       <li>🏅 4to Premio: 10% del acumulado</li>
     </ul>
-
     <h3>Información Importante:</h3>
     <div class="info">
       <p>💰 Costo del número: $[INSERTAR PRECIO] MXN</p>
@@ -127,12 +121,12 @@
       <p>📢 Resultados: El sorteo se realizará el día 07/04/2026 y los ganadores serán publicados en esta página y contactados vía telefónica.</p>
       <p>🤝 Tu apoyo hace la diferencia: Gracias por ayudarnos a recuperar el equilibrio y por confiar en este proceso. ¡Mucha suerte!</p>
     </div>
-  </div> <!-- cierre correcto del bloque de explicación -->
+  </div>
 
   <!-- Cuadrícula de números -->
   <div id="grid"></div>
 
-  <!-- Formulario para registrar comprador y teléfono -->
+  <!-- Formulario -->
   <form id="formRegistro">
     <input type="text" id="comprador" placeholder="Nombre del comprador" required>
     <input type="text" id="telefono" placeholder="Teléfono" required>
@@ -145,7 +139,6 @@
 <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpLL509GKDl1n5Kv3P4cjIrhtg0tCEJuKp0IGxtjxUG5MXmfNy-HAzDZscIy0yF7844Q/exec";
 
-  // Construcción inicial de la cuadrícula (del 00 al 99)
   const grid = document.getElementById("grid");
   for (let i = 0; i < 100; i++) {
     const numero = i.toString().padStart(2, "0");
@@ -157,7 +150,6 @@
     grid.appendChild(cell);
   }
 
-  // Consultar ocupados/libres desde la hoja
   async function consultar() {
     try {
       const res = await fetch(WEBAPP_URL);
@@ -173,9 +165,8 @@
 
       data.datos.forEach((fila, idx) => {
         try {
-          const numero = fila[0];       // Columna A: número
-          const comprador = fila[3];    // Columna D: nombre
-          
+          const numero = fila[0];
+          const comprador = fila[3];
           if (numero !== "" && numero !== undefined) {
             const numStr = numero.toString().padStart(2, "0");
             const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
@@ -194,14 +185,12 @@
     }
   }
 
-  // Seleccionar número libre y mostrarlo en el formulario
   function seleccionarNumero(num, cell) {
     if (cell.classList.contains("ocupado")) return;
     document.getElementById("numeroSeleccionado").value = num;
     document.getElementById("salida").textContent = "Número seleccionado: " + num;
   }
 
-  // Enviar registro al WebApp
   document.getElementById("formRegistro").addEventListener("submit", async (e) => {
     e.preventDefault();
     const num = document.getElementById("numeroSeleccionado").value;
@@ -222,4 +211,29 @@
       const res = await fetch(WEBAPP_URL, {
         method: "POST",
         body: params,
-        headers: { "Content-Type": "application
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      });
+      const texto = await res.text();
+      const data = JSON.parse(texto);
+
+      if (data.error) {
+        alert("Error: " + data.error);
+      } else {
+        const cell = document.querySelector(`.cell[data-numero='${num}']`);
+        if (cell) cell.className = "cell ocupado";
+
+        document.getElementById("formRegistro").reset();
+        document.getElementById("salida").textContent = "Número " + num + " registrado correctamente";
+
+        consultar();
+      }
+    } catch (err) {
+      alert("Error de conexión: " + err.message);
+    }
+  });
+
+  consultar();
+</script>
+
+</body>
+</html>
