@@ -237,9 +237,12 @@
 
   <pre id="salida">Esperando...</pre>
 </main>
-  <script>
+<script>
+  // URLs: ajusta con los tuyos reales
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwj3GOKtimg96m4c1w72qN5thWc25EvPadFG2jY4CtN19y5R5NyBz1GTzLPAkpwlfxlrw/exec";
+  const HOJA_URL = "https://docs.google.com/spreadsheets/d/17kaYT81DBVP8G7LeaMV1Thic32bwL528cN4DngzF4lQ/edit";
 
+  // Construcción de cuadrícula 10x10
   const grid = document.getElementById("grid");
   for (let i = 0; i < 100; i++) {
     const numero = i.toString().padStart(2, "0");
@@ -257,30 +260,48 @@
     document.getElementById("salida").textContent = "Número seleccionado: " + num;
   }
 
+  // Consulta y muestra datos de la hoja
   async function consultar() {
     try {
+      document.getElementById("salida").textContent = "🔄 Consultando hoja...";
       const res = await fetch(WEBAPP_URL);
       const data = await res.json();
+
+      if (data.error) {
+        document.getElementById("salida").textContent = "❌ Error: " + data.error;
+        return;
+      }
 
       // Reinicia todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
 
-      // Construye resumen de ocupados
-      let resumen = "Números ocupados:\n";
-      data.datos.forEach(fila => {
+      // Construye el contenido tipo “base de datos”
+      let contenidoHoja = "📊 BASE DE DATOS (Registros reales)\n";
+      contenidoHoja += "NUM | COMPRADOR | TELÉFONO\n";
+      contenidoHoja += "---------------------------------\n";
+
+      data.datos.forEach((fila, idx) => {
+        // Saltamos encabezados si existen
+        if (idx === 0 && fila[0].toString().toLowerCase().includes("num")) return;
+
         const numero = fila[0];
-        const comprador = fila[3];
-        if (numero !== "" && comprador && comprador.trim() !== "") {
+        const comprador = fila[3]; // Columna D
+        const telefono = fila[4];  // Columna E
+
+        if (numero && comprador && comprador.trim() !== "") {
           const numStr = numero.toString().padStart(2, "0");
           const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
           if (cell) cell.className = "cell ocupado";
-          resumen += `${numStr} - ${comprador}\n`;
+
+          contenidoHoja += `${numStr} | ${comprador} | ${telefono || 'N/A'}\n`;
         }
       });
 
-      document.getElementById("salida").textContent = resumen;
+      contenidoHoja += "\n🔗 Abrir hoja original:\n" + HOJA_URL;
+      document.getElementById("salida").textContent = contenidoHoja;
+
     } catch (err) {
-      document.getElementById("salida").textContent = "Error de conexión: " + err.message;
+      document.getElementById("salida").textContent = "⚠️ Error de conexión: " + err.message;
     }
   }
 
@@ -299,19 +320,16 @@
     const params = new URLSearchParams({ numero: num, comprador, telefono });
 
     try {
+      document.getElementById("salida").textContent = "⏳ Registrando en la base de datos...";
       const res = await fetch(WEBAPP_URL, { method: "POST", body: params });
       const data = await res.json();
 
       if (data.error) {
         alert("Error: " + data.error);
       } else {
-        const cell = document.querySelector(`.cell[data-numero='${num}']`);
-        if (cell) cell.className = "cell ocupado";
-
         document.getElementById("formRegistro").reset();
-        document.getElementById("salida").textContent = "Número " + num + " registrado correctamente";
-
-        consultar();
+        document.getElementById("salida").textContent = "✅ Número " + num + " guardado con éxito";
+        consultar(); // Refresca la lista y los colores
       }
     } catch (err) {
       alert("Error de conexión: " + err.message);
@@ -321,10 +339,9 @@
   // Botón único para ver datos de la hoja
   document.getElementById("btnConsultar").addEventListener("click", () => {
     consultar();
-    document.getElementById("salida").textContent = "Consultando hoja...";
   });
 
-  // Llamada inicial
+  // Llamada inicial para pintar los números ocupados al abrir la página
   consultar();
 </script>
 </body>
