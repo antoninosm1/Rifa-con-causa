@@ -4,144 +4,131 @@
   <meta charset="UTF-8">
   <title>Rifa con Causa</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; display: flex; justify-content: center; background-color: #f1f5f9; }
-    .container { max-width: 700px; margin: auto; text-align: center; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    #grid { display: grid; grid-template-columns: repeat(10, 55px); gap: 8px; justify-content: center; margin: 20px auto; }
-    .cell { width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;
-            border: 1px solid #e2e8f0; cursor: pointer; border-radius: 6px; font-weight: bold; transition: 0.2s; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; display: flex; justify-content: center; background-color: #f1f5f9; }
+    .container { max-width: 600px; margin: auto; text-align: center; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    h2 { color: #1e40af; margin-bottom: 5px; }
+    #grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; justify-content: center; margin: 20px auto; }
+    .cell { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
+            border: 1px solid #e2e8f0; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 0.9rem; transition: 0.2s; }
     
-    /* Estados de las celdas */
     .libre { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
-    .libre:hover { transform: scale(1.1); border-color: #2563eb; }
-    .ocupado { background: #fee2e2; color: #dc2626; cursor: not-allowed; opacity: 0.8; border-color: #fecaca; }
-    .seleccionado { background: #2563eb !important; color: white !important; border-color: #1e40af !important; transform: scale(1.1); }
+    .ocupado { background: #fee2e2; color: #dc2626; cursor: not-allowed; border-color: #fecaca; }
+    .seleccionado { background: #2563eb !important; color: white !important; border-color: #1e40af !important; transform: scale(1.1); box-shadow: 0 4px 10px rgba(37,99,235,0.3); }
 
-    form { margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px; }
-    input { padding: 10px; margin: 5px; border: 1px solid #cbd5e1; border-radius: 6px; width: 200px; }
-    button { padding: 12px 25px; border: none; border-radius: 6px; background: #2563eb; color: white; cursor: pointer; font-weight: bold; }
-    button:hover { background: #1d4ed8; }
-    #salida { margin-top: 20px; background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; min-height: 20px; }
+    form { margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+    input { padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; width: 80%; max-width: 300px; font-size: 1rem; }
+    button { padding: 12px 30px; border: none; border-radius: 6px; background: #2563eb; color: white; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; }
+    button:hover:not(:disabled) { background: #1d4ed8; }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+    #salida { margin-top: 20px; background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; min-height: 1.2rem; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <h2>🎟️ Rifa con Causa</h2>
-  <p>Selecciona un número verde para registrarte</p>
+  <p style="color: #64748b;">Toca un número verde para seleccionarlo</p>
 
   <div id="grid"></div>
 
   <form id="formRegistro">
-    <input type="text" id="comprador" placeholder="Nombre completo" required>
-    <input type="text" id="telefono" placeholder="WhatsApp / Teléfono" required>
+    <input type="text" id="comprador" placeholder="Tu nombre completo" required>
+    <input type="text" id="telefono" placeholder="Tu WhatsApp o Teléfono" required>
     <input type="hidden" id="numeroSeleccionado">
-    <button type="submit" id="btnEnviar">Registrar Mi Número</button>
+    <button type="submit" id="btnEnviar">Apartar Número</button>
   </form>
 
-  <pre id="salida">Cargando disponibilidad...</pre>
+  <div id="salida">Cargando tablero...</div>
 </div>
 
 <script>
   const WEBAPP_URL = "https://script.google.com";
 
-  // Crear la cuadrícula 00-99
   const grid = document.getElementById("grid");
+  const salida = document.getElementById("salida");
+
+  // Crear celdas 00-99
   for (let i = 0; i < 100; i++) {
-    const numero = i.toString().padStart(2, "0");
+    const num = i.toString().padStart(2, "0");
     const cell = document.createElement("div");
-    cell.textContent = numero;
+    cell.textContent = num;
     cell.className = "cell libre";
-    cell.dataset.numero = numero;
-    cell.addEventListener("click", () => seleccionarNumero(numero, cell));
+    cell.dataset.numero = num;
+    cell.onclick = () => seleccionarNumero(num, cell);
     grid.appendChild(cell);
   }
 
-  // Consultar estado de la hoja
   async function consultar() {
     try {
       const res = await fetch(WEBAPP_URL);
       const data = await res.json();
 
-      if (data.error) {
-        document.getElementById("salida").textContent = "Error: " + data.error;
-        return;
-      }
+      if (data.error) throw new Error(data.error);
 
-      // Reiniciar todas a libre antes de marcar ocupadas
+      // Limpiar estados antes de actualizar
       document.querySelectorAll(".cell").forEach(c => {
         c.classList.remove("ocupado", "seleccionado");
         c.classList.add("libre");
       });
 
-      // Marcar ocupados (Columna A: Número [0], Columna D: Nombre [3])
+      // Recorrer filas de la hoja
       data.datos.forEach((fila) => {
-        const numHoja = fila[0];
-        const nombre = fila[3]; 
-
-        if (numHoja !== undefined && nombre && nombre.toString().trim() !== "") {
-          const numStr = numHoja.toString().padStart(2, "0");
-          const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
-          if (cell) {
-            cell.classList.replace("libre", "ocupado");
+        // Columna A (indice 0) es el número, Columna D (indice 3) es el nombre
+        if (fila && fila[0] !== undefined) {
+          const n = fila[0].toString().padStart(2, "0");
+          const nombre = fila[3] ? fila[3].toString().trim() : "";
+          
+          if (nombre !== "") {
+            const cell = document.querySelector(`.cell[data-numero='${n}']`);
+            if (cell) {
+              cell.classList.replace("libre", "ocupado");
+            }
           }
         }
       });
-
-      document.getElementById("salida").textContent = "Disponibilidad actualizada";
+      salida.textContent = "Tablero listo.";
     } catch (err) {
-      document.getElementById("salida").textContent = "Sin conexión: " + err.message;
+      salida.textContent = "Error: " + err.message;
     }
   }
 
   function seleccionarNumero(num, cell) {
     if (cell.classList.contains("ocupado")) {
-      document.getElementById("salida").textContent = "⚠️ El número " + num + " ya está vendido.";
+      salida.textContent = "❌ El " + num + " ya está vendido.";
       return;
     }
-
-    // Quitar selección previa y marcar la nueva
     document.querySelectorAll(".cell").forEach(c => c.classList.remove("seleccionado"));
     cell.classList.add("seleccionado");
-
     document.getElementById("numeroSeleccionado").value = num;
-    document.getElementById("salida").textContent = "Has seleccionado el: " + num;
+    salida.textContent = "Has seleccionado el número: " + num;
   }
 
-  document.getElementById("formRegistro").addEventListener("submit", async (e) => {
+  document.getElementById("formRegistro").onsubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById("btnEnviar");
     const num = document.getElementById("numeroSeleccionado").value;
-    const nom = document.getElementById("comprador").value;
-    const tel = document.getElementById("telefono").value;
 
     if (!num) {
-      alert("Por favor, toca un número verde en la lista.");
+      alert("Selecciona primero un número en el tablero");
       return;
     }
 
     btn.disabled = true;
-    document.getElementById("salida").textContent = "Procesando registro...";
+    salida.textContent = "Enviando registro...";
 
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(new FormData(e.target));
     params.append("numero", num);
-    params.append("comprador", nom);
-    params.append("telefono", tel);
 
     try {
-      const res = await fetch(WEBAPP_URL, {
-        method: "POST",
-        body: params,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
-      });
+      const res = await fetch(WEBAPP_URL, { method: "POST", body: params });
       const data = await res.json();
 
       if (data.error) {
         alert("Error: " + data.error);
-        consultar(); // Refrescar por si alguien lo ganó
       } else {
-        document.getElementById("formRegistro").reset();
+        alert("✅ ¡Registrado! El número " + num + " ahora es tuyo.");
+        e.target.reset();
         document.getElementById("numeroSeleccionado").value = "";
-        document.getElementById("salida").textContent = "✅ ¡Éxito! Número " + num + " reservado.";
         await consultar();
       }
     } catch (err) {
@@ -149,9 +136,8 @@
     } finally {
       btn.disabled = false;
     }
-  });
+  };
 
-  // Inicio automático
   consultar();
 </script>
 </body>
