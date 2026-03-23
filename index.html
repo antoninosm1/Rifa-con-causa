@@ -214,7 +214,7 @@
     <input type="text" id="telefono" placeholder="Teléfono" required>
     <input type="hidden" id="numeroSeleccionado">
     <button type="submit">Registrar Número</button>
-    
+    <button id="btnConsultar">Ver números ocupados</button>
   </form>
 
   <pre id="salida">Esperando...</pre>
@@ -222,7 +222,6 @@
 
 <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpLL509GKDl1n5Kv3P4cjIrhtg0tCEJuKp0IGxtjxUG5MXmfNy-HAzDZscIy0yF7844Q/exec";
-
   const grid = document.getElementById("grid");
   for (let i = 0; i < 100; i++) {
     const numero = i.toString().padStart(2, "0");
@@ -231,4 +230,82 @@
     cell.className = "cell libre";
     cell.dataset.numero = numero;
     cell.addEventListener("click", () => seleccionarNumero(numero, cell));
-    grid.appendChild(cell
+    grid.appendChild(cell);   // aquí estaba el corte, se cierra correctamente
+  }
+
+  function seleccionarNumero(num, cell) {
+    if (cell.classList.contains("ocupado")) return;
+    document.getElementById("numeroSeleccionado").value = num;
+    document.getElementById("salida").textContent = "Número seleccionado: " + num;
+  }
+
+  async function consultar() {
+    try {
+      const res = await fetch(WEBAPP_URL);
+      const data = await res.json();
+
+      // Reinicia todas las celdas como libres
+      document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
+
+      // Marca ocupados según datos de la hoja
+      data.datos.forEach(fila => {
+        const numero = fila[0];
+        const comprador = fila[3];
+        if (numero !== "" && comprador && comprador.trim() !== "") {
+          const numStr = numero.toString().padStart(2, "0");
+          const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
+          if (cell) cell.className = "cell ocupado";
+        }
+      });
+
+      document.getElementById("salida").textContent = "Lista actualizada";
+    } catch (err) {
+      document.getElementById("salida").textContent = "Error de conexión: " + err.message;
+    }
+  }
+
+  document.getElementById("formRegistro").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const num = document.getElementById("numeroSeleccionado").value;
+    const comprador = document.getElementById("comprador").value;
+    const telefono = document.getElementById("telefono").value;
+
+    if (!num) {
+      alert("Selecciona un número en la cuadrícula primero");
+      return;
+    }
+
+    const params = new URLSearchParams({ numero: num, comprador, telefono });
+
+    try {
+      const res = await fetch(WEBAPP_URL, { method: "POST", body: params });
+      const data = await res.json();
+
+      if (data.error) {
+        alert("Error: " + data.error);
+      } else {
+        const cell = document.querySelector(`.cell[data-numero='${num}']`);
+        if (cell) cell.className = "cell ocupado";
+
+        document.getElementById("formRegistro").reset();
+        document.getElementById("salida").textContent = "Número " + num + " registrado correctamente";
+
+        consultar();
+      }
+    } catch (err) {
+      alert("Error de conexión: " + err.message);
+    }
+  });
+
+  // Botón extra para consultar manualmente la hoja
+  document.getElementById("btnConsultar").addEventListener("click", () => {
+    consultar();
+    document.getElementById("salida").textContent = "Consultando hoja...";
+  });
+
+  // Llamada inicial
+  consultar();
+</script>
+
+</body>
+</html>
