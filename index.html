@@ -37,7 +37,7 @@
 </div>
 
 <script>
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbza9CK5LCeIGDj5j-PnMjsowXDu5ROzzyOyssx158aHOZvClznz-ccaZeZWgQ3zkj7Ftg/exec"; // Sustituye por la URL de tu WebApp con acceso anónimo
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxbBfWT65CR54SIIt-j7hhnh7_hmyKOOxm9xJvSNe8o4rSVwnbf71n0MIdwae0sFrLBbw/exec"; // Sustituye por la URL de tu WebApp desplegado con acceso anónimo
 
   // Construcción inicial de la cuadrícula (del 00 al 99)
   const grid = document.getElementById("grid");
@@ -63,10 +63,8 @@
         return;
       }
 
-      // Reiniciar todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
 
-      // Recorrer todas las filas y marcar ocupados si columna D (índice 3) tiene valor
       data.datos.forEach((fila, idx) => {
         try {
           const numero = fila[0];       // Columna A: número
