@@ -37,7 +37,8 @@
 </div>
 
 <script>
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyVqb6oARSkez-7EzwJf6AacBbb6MTbHffVuYVCHz1AwJbNiDEX1MT3vadVkv2Ef_IhzA/exec"; // Sustituye por la URL de tu WebApp desplegado con acceso anónimo
+  // URL RESTAURADA: AKfycbyVqb6oARSkez-7EzwJf6AacBbb6MTbHffVuYVCHz1AwJbNiDEX1MT3vadVkv2Ef_IhzA/exec
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyVqb6oARSkez-7EzwJf6AacBbb6MTbHffVuYVCHz1AwJbNiDEX1MT3vadVkv2Ef_IhzA/exec";
 
   // Construcción inicial de la cuadrícula (del 00 al 99)
   const grid = document.getElementById("grid");
@@ -69,7 +70,9 @@
         try {
           const numero = fila[0];       // Columna A: número
           const comprador = fila[3];    // Columna D: nombre
-          if (numero) {
+          
+          // CORRECCIÓN PARA EL 00: Se verifica que no sea vacío para que el 0 no sea ignorado como "falso"
+          if (numero !== "" && numero !== undefined) {
             const numStr = numero.toString().padStart(2, "0");
             const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
             if (cell && comprador && comprador.trim() !== "") {
@@ -123,14 +126,12 @@
       if (data.error) {
         alert("Error: " + data.error);
       } else {
-        // Pintar inmediatamente en rojo la celda seleccionada
         const cell = document.querySelector(`.cell[data-numero='${num}']`);
         if (cell) cell.className = "cell ocupado";
 
         document.getElementById("formRegistro").reset();
         document.getElementById("salida").textContent = "Número " + num + " registrado correctamente";
 
-        // Refrescar cuadrícula desde la hoja para confirmar
         consultar();
       }
     } catch (err) {
@@ -138,7 +139,6 @@
     }
   });
 
-  // Cargar estado inicial
   consultar();
 </script>
 
