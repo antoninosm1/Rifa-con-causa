@@ -3,77 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <title>Rifa con Causa</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; display: flex; justify-content: center; }
-    .container { max-width: 700px; margin: auto; text-align: center; }
-    #grid { display: grid; grid-template-columns: repeat(10, 50px); gap: 6px; justify-content: center; margin: 20px auto; }
-    .cell { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
-            border: 1px solid #ccc; cursor: pointer; border-radius: 4px; font-weight: bold; }
-    .libre { background: #dcfce7; color: #15803d; }
-    .ocupado { background: #fee2e2; color: #dc2626; cursor: not-allowed; }
-    form { margin-top: 20px; }
-    input { padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 4px; }
-    button { padding: 10px 20px; margin-top: 10px; border: none; border-radius: 4px; background: #2563eb; color: white; cursor: pointer; }
-    #salida { margin-top: 20px; background: #0f172a; color: #38bdf8; padding: 10px; border-radius: 6px; font-family: monospace; }
-    /* Contenedor principal del texto de la rifa */
-    .rifa-causa {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: #fdfdfd;
+  <style>/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Contenedor general */
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #fafafa;
+  color: #333;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centra todo horizontalmente */
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/* Bloque de explicación de la rifa */
+.rifa-causa {
+  width: 100%;
+  max-width: 900px;       /* límite en pantallas grandes */
+  margin: 1rem auto;
+  padding: 1.5rem;
+  background: #fff;
   border: 2px solid #e0e0e0;
   border-radius: 12px;
-  font-family: "Segoe UI", Arial, sans-serif;
-  line-height: 1.6;
-  color: #333;
 }
 
-.rifa-causa h2 {
-  text-align: center;
-  font-size: 1.8rem;
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  font-weight: 700;
+/* Cuadrícula de números */
+.grid-numeros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 2rem auto;
 }
 
-.rifa-causa h3 {
-  margin-top: 1.5rem;
-  font-size: 1.2rem;
-  color: #34495e;
-}
-
-.rifa-causa p {
-  margin-bottom: 1rem;
-  font-size: 1rem;
-}
-
-.rifa-causa ul.premios {
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0;
-}
-
-.rifa-causa ul.premios li {
-  background: #f5f7fa;
-  margin: 0.5rem 0;
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
+/* Botones de la cuadrícula */
+.grid-numeros button {
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f5f5f5;
   font-weight: 600;
-  display: flex;
-  align-items: center;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-.rifa-causa .info {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: #eef6ff;
-  border-left: 4px solid #3498db;
-  border-radius: 8px;
+.grid-numeros button:hover {
+  background: #dfe6e9;
 }
 
-.rifa-causa .info p {
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
+/* Botones ocupados */
+.grid-numeros button.ocupado {
+  background: #ff7675;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+/* Responsividad: pantallas pequeñas */
+@media (max-width: 600px) {
+  .rifa-causa {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .grid-numeros {
+    grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+    gap: 0.4rem;
+  }
+
+  .grid-numeros button {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Responsividad: pantallas grandes */
+@media (min-width: 1200px) {
+  .rifa-causa {
+    font-size: 1.1rem;
+    line-height: 1.8;
+  }
+
+  .grid-numeros button {
+    font-size: 1rem;
+  }
 }
   </style>
 </head>
