@@ -274,7 +274,8 @@
 
       // Reinicia todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
-
+// ... (Continúa después del comentario de reinicio de celdas libres)
+      
       // Construye el contenido tipo “base de datos”
       let contenidoHoja = "📊 BASE DE DATOS (Registros reales)\n";
       contenidoHoja += "NUM | COMPRADOR | TELÉFONO | FECHA\n";
@@ -282,14 +283,14 @@
 
       data.datos.forEach((fila, idx) => {
         // Saltamos encabezados si existen
-        if (idx === 0 && fila[0].toString().toLowerCase().includes("num")) return;
+        if (fila[0] && idx === 0 && fila[0].toString().toLowerCase().includes("num")) return;
 
         const numero   = fila[0]; // Columna A
         const comprador= fila[3]; // Columna D
         const telefono = fila[4]; // Columna E
         const fecha    = fila[5]; // Columna F
 
-        if (numero && comprador && comprador.trim() !== "") {
+        if (numero !== "" && numero !== undefined && comprador && comprador.trim() !== "") {
           const numStr = numero.toString().padStart(2, "0");
           const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
           if (cell) cell.className = "cell ocupado";
@@ -298,7 +299,6 @@
         }
       });
 
-      contenidoHoja += "\n🔗 Abrir hoja original:\n" + HOJA_URL;
       document.getElementById("salida").textContent = contenidoHoja;
 
     } catch (err) {
@@ -337,8 +337,26 @@
     }
   });
 
-  // Botón único para ver datos de la hoja
-  document.getElementById("btnConsultar").addEventListener("click", () => {
+  // MEJORA: Registro de quién ve la tabla (IP) y ejecución de consulta
+  document.getElementById("btnConsultar").addEventListener("click", async (e) => {
+    e.preventDefault(); // Evita que el formulario se envíe
+    
+    // Obtener IP de forma sencilla
+    let ipUsuario = "Desconocida";
+    try {
+      const ipRes = await fetch('https://api.ipify.org');
+      const ipData = await ipRes.json();
+      ipUsuario = ipData.ip;
+    } catch (e) { console.log("No se pudo obtener IP"); }
+
+    // Enviar registro de "Vista de Base de Datos" al servidor
+    const logParams = new URLSearchParams({ 
+      numero: "LOG_VISTA", 
+      comprador: "IP: " + ipUsuario, 
+      telefono: "Vio Base de Datos" 
+    });
+    fetch(WEBAPP_URL, { method: "POST", body: logParams });
+
     consultar();
   });
 
