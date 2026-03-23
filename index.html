@@ -274,32 +274,50 @@
 
       // Reinicia todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
-// ... (Continúa después del comentario de reinicio de celdas libres)
+// ... (Continúa después del comentario de reinicio de celdas libres)  // Consulta y muestra datos de la hoja
+  async function consultar() {
+    try {
+      const salida = document.getElementById("salida");
+      salida.textContent = "🔄 Consultando hoja...";
       
-      // Construye el contenido tipo “base de datos”
+      const res = await fetch(WEBAPP_URL);
+      const data = await res.json();
+
+      if (data.error) {
+        salida.textContent = "❌ Error: " + data.error;
+        return;
+      }
+
+      // 1. Reinicia todas las celdas como libres antes de marcar
+      document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
+
+      // 2. Construye el contenido tipo “base de datos”
       let contenidoHoja = "📊 BASE DE DATOS (Registros reales)\n";
       contenidoHoja += "NUM | COMPRADOR | TELÉFONO | FECHA\n";
       contenidoHoja += "-------------------------------------------\n";
 
       data.datos.forEach((fila, idx) => {
-        // Saltamos encabezados si existen
-        if (fila[0] && idx === 0 && fila[0].toString().toLowerCase().includes("num")) return;
+        // Saltamos encabezados
+        if (idx === 0 && fila[0].toString().toLowerCase().includes("num")) return;
 
         const numero   = fila[0]; // Columna A
         const comprador= fila[3]; // Columna D
         const telefono = fila[4]; // Columna E
         const fecha    = fila[5]; // Columna F
 
+        // CORRECCIÓN CRÍTICA: Validar número (incluyendo el 0) y pintar de rojo
         if (numero !== "" && numero !== undefined && comprador && comprador.trim() !== "") {
           const numStr = numero.toString().padStart(2, "0");
           const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
-          if (cell) cell.className = "cell ocupado";
-
+          
+          if (cell) {
+            cell.className = "cell ocupado"; // AQUÍ SE PINTA DE ROJO
+          }
           contenidoHoja += `${numStr} | ${comprador} | ${telefono || 'N/A'} | ${fecha || 'N/A'}\n`;
         }
       });
 
-      document.getElementById("salida").textContent = contenidoHoja;
+      salida.textContent = contenidoHoja;
 
     } catch (err) {
       document.getElementById("salida").textContent = "⚠️ Error de conexión: " + err.message;
@@ -330,32 +348,28 @@
       } else {
         document.getElementById("formRegistro").reset();
         document.getElementById("salida").textContent = "✅ Número " + num + " guardado con éxito";
-        consultar(); // Refresca la lista y los colores
+        consultar(); // Refresca la lista y los colores ROJOS
       }
     } catch (err) {
       alert("Error de conexión: " + err.message);
     }
   });
 
-  // MEJORA: Registro de quién ve la tabla (IP) y ejecución de consulta
+  // Botón único para ver datos de la hoja y registrar IP
   document.getElementById("btnConsultar").addEventListener("click", async (e) => {
-    e.preventDefault(); // Evita que el formulario se envíe
+    e.preventDefault(); // IMPORTANTE: Evita que el botón "limpie" la página
     
-    // Obtener IP de forma sencilla
-    let ipUsuario = "Desconocida";
+    // Obtener IP (Registro silencioso)
     try {
       const ipRes = await fetch('https://api.ipify.org');
       const ipData = await ipRes.json();
-      ipUsuario = ipData.ip;
-    } catch (e) { console.log("No se pudo obtener IP"); }
-
-    // Enviar registro de "Vista de Base de Datos" al servidor
-    const logParams = new URLSearchParams({ 
-      numero: "LOG_VISTA", 
-      comprador: "IP: " + ipUsuario, 
-      telefono: "Vio Base de Datos" 
-    });
-    fetch(WEBAPP_URL, { method: "POST", body: logParams });
+      const logParams = new URLSearchParams({ 
+        numero: "LOG_VISTA", 
+        comprador: "IP: " + ipData.ip, 
+        telefono: "Consulto Base Datos" 
+      });
+      fetch(WEBAPP_URL, { method: "POST", body: logParams });
+    } catch (e) { console.log("Salto de registro IP"); }
 
     consultar();
   });
@@ -363,5 +377,6 @@
   // Llamada inicial para pintar los números ocupados al abrir la página
   consultar();
 </script>
+
 </body>
 </html>
