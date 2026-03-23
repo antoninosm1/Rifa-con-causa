@@ -15,54 +15,162 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
+    }
+
+    /* Header con menú */
+    header {
+      width: 100%;
+      background: #2c3e50;
+      color: #fff;
+      padding: 1rem;
+    }
+
+    header nav {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    header nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    header nav a:hover { color: #f1c40f; }
+
+    /* Contenedor principal */
+    main {
+      width: 95%;
+      max-width: 1000px;
+      margin: 2rem auto;
       padding: 1rem;
     }
 
     .rifa-causa {
-      width: 100%;
-      max-width: 900px;
-      margin: 1rem auto;
-      padding: 1.5rem;
       background: #fff;
       border: 2px solid #e0e0e0;
       border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .rifa-causa h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #2c3e50;
     }
 
     /* Cuadrícula */
     #grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+      grid-template-columns: repeat(10, 1fr); /* cuadrado 10x10 */
       gap: 0.5rem;
-      width: 100%;
-      max-width: 900px;
       margin: 2rem auto;
     }
 
     .cell {
-      padding: 0.8rem;
+      padding: 1rem;
       border: 1px solid #ccc;
       border-radius: 6px;
-      background: #f5f5f5;
+      background: #ecf0f1;
       font-weight: 600;
       text-align: center;
       cursor: pointer;
       transition: background 0.3s;
     }
 
-    .cell:hover { background: #dfe6e9; }
-    .cell.ocupado { background: #ff7675; color: #fff; cursor: not-allowed; }
+    .cell:hover { background: #bdc3c7; }
+    .cell.ocupado { background: #e74c3c; color: #fff; cursor: not-allowed; }
 
-    @media (max-width: 600px) {
+    /* Formulario */
+    form#formRegistro {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      width: 100%;
+      max-width: 400px;
+      margin: 1.5rem auto;
+    }
+
+    form#formRegistro input[type="text"] {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    form#formRegistro input[type="text"]:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+
+    form#formRegistro button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #3498db;
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    form#formRegistro button:hover { background: #2980b9; }
+
+    /* Mensaje de salida */
+    #salida {
+      margin-top: 1rem;
+      padding: 1rem;
+      width: 100%;
+      max-width: 400px;
+      background: #f5f7fa;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      text-align: center;
+      white-space: pre-wrap;
+    }
+
+    /* Responsividad */
+    @media (max-width: 768px) {
+      main { width: 98%; margin: 1rem auto; }
       #grid { grid-template-columns: repeat(auto-fit, minmax(45px, 1fr)); }
       .cell { padding: 0.6rem; font-size: 0.85rem; }
+    }
+
+    @media (min-width: 1200px) {
+      .rifa-causa { font-size: 1.1rem; line-height: 1.8; }
+      .cell { font-size: 1rem; }
     }
   </style>
 </head>
 <body>
 
+<header>
+  <nav>
+    <a href="#">Inicio</a>
+    <a href="#">Premios</a>
+    <a href="#">Información</a>
+    <a href="#">Contacto</a>
+  </nav>
+</header>
+
+<main>
   <div class="rifa-causa">
     <h2>Rifa con Causa</h2>
-    <p>Esta iniciativa nace con el objetivo de sanear un faltante de caja... La rifa es en la fecha <strong>07/04/2026</strong>.</p>
+    <p>
+      Esta iniciativa nace con el objetivo de sanear un faltante de caja. 
+      Al participar, no solo nos ayudas a recuperarlo, sino que también entras 
+      a una bolsa de premios diseñada para recompensar a más ganadores y de manera equitativa. 
+      Esto será después de recuperar el faltante, por lo que pido se vendan la mayor cantidad de números. 
+      Comparte con tus conocidos por favor. La rifa es en la fecha <strong>07/04/2026</strong> con los que se junten...
+    </p>
     <h3>Distribución de la bolsa (sobre el excedente):</h3>
     <ul>
       <li>🥇 1er Premio: 40% del acumulado</li>
@@ -72,7 +180,9 @@
     </ul>
     <h3>Información Importante:</h3>
     <p>💰 Costo del número: $[INSERTAR PRECIO] MXN</p>
-    <p>🛡️ Garantía de Transparencia...</p>
+    <p>🛡️ Garantía de Transparencia: Los premios se calculan sobre el total recaudado una vez cubierto el faltante de caja. ¡Entre más números vendamos, más grandes serán los premios!</p>
+    <p>📢 Resultados: El sorteo se realizará el día 07/04/2026 y los ganadores serán publicados en esta página y contactados vía telefónica.</p>
+    <p>🤝 Tu apoyo hace la diferencia: Gracias por ayudarnos a recuperar el equilibrio y por confiar en este proceso. ¡Mucha suerte!</p>
   </div>
 
   <!-- Cuadrícula -->
@@ -87,6 +197,7 @@
   </form>
 
   <pre id="salida">Esperando...</pre>
+</main>
 
 <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpLL509GKDl1n5Kv3P4cjIrhtg0tCEJuKp0IGxtjxUG5MXmfNy-HAzDZscIy0yF7844Q/exec";
@@ -107,7 +218,6 @@
     document.getElementById("numeroSeleccionado").value = num;
     document.getElementById("salida").textContent = "Número seleccionado: " + num;
   }
-
   async function consultar() {
     try {
       const res = await fetch(WEBAPP_URL);
@@ -133,20 +243,32 @@
     const num = document.getElementById("numeroSeleccionado").value;
     const comprador = document.getElementById("comprador").value;
     const telefono = document.getElementById("telefono").value;
-    if (!num) { alert("Selecciona un número primero"); return; }
+
+    if (!num) {
+      alert("Selecciona un número en la cuadrícula primero");
+      return;
+    }
+
     const params = new URLSearchParams({ numero: num, comprador, telefono });
+
     try {
       const res = await fetch(WEBAPP_URL, { method: "POST", body: params });
       const data = await res.json();
-      if (data.error) { alert("Error: " + data.error); }
-      else {
+
+      if (data.error) {
+        alert("Error: " + data.error);
+      } else {
         const cell = document.querySelector(`.cell[data-numero='${num}']`);
         if (cell) cell.className = "cell ocupado";
+
         document.getElementById("formRegistro").reset();
         document.getElementById("salida").textContent = "Número " + num + " registrado correctamente";
+
         consultar();
       }
-    } catch (err) { alert("Error de conexión: " + err.message); }
+    } catch (err) {
+      alert("Error de conexión: " + err.message);
+    }
   });
 
   consultar();
@@ -154,3 +276,5 @@
 
 </body>
 </html>
+
+  
