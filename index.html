@@ -8,7 +8,7 @@
 
     body {
       font-family: "Segoe UI", Arial, sans-serif;
-      background: #fafafa;
+      background: #f4f6f8;
       color: #333;
       line-height: 1.6;
       display: flex;
@@ -23,12 +23,14 @@
       background: #2c3e50;
       color: #fff;
       padding: 1rem;
+      border-radius: 0 0 12px 12px;
     }
 
     header nav {
       display: flex;
       justify-content: center;
       gap: 2rem;
+      flex-wrap: wrap;
     }
 
     header nav a {
@@ -43,7 +45,7 @@
     /* Contenedor principal */
     main {
       width: 95%;
-      max-width: 1000px;
+      max-width: 900px;
       margin: 2rem auto;
       padding: 1rem;
     }
@@ -65,24 +67,28 @@
     /* Cuadrícula */
     #grid {
       display: grid;
-      grid-template-columns: repeat(10, 1fr); /* cuadrado 10x10 */
-      gap: 0.5rem;
+      grid-template-columns: repeat(8, 1fr); /* más angosta: 8 columnas */
+      gap: 0.6rem;
       margin: 2rem auto;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      border: 2px solid #e0e0e0;
     }
 
     .cell {
-      padding: 1rem;
+      padding: 0.8rem;
       border: 1px solid #ccc;
-      border-radius: 6px;
-      background: #ecf0f1;
+      border-radius: 8px;
+      background: #eaf0f6;
       font-weight: 600;
       text-align: center;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background 0.3s, transform 0.2s;
     }
 
-    .cell:hover { background: #bdc3c7; }
-    .cell.ocupado { background: #e74c3c; color: #fff; cursor: not-allowed; }
+    .cell:hover { background: #d6e4f0; transform: scale(1.05); }
+    .cell.ocupado { background: #ff6b6b; color: #fff; cursor: not-allowed; }
 
     /* Formulario */
     form#formRegistro {
@@ -99,7 +105,7 @@
       width: 100%;
       padding: 0.8rem;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 1rem;
       transition: border-color 0.3s;
     }
@@ -116,7 +122,7 @@
       color: #fff;
       font-weight: 600;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s;
     }
@@ -131,7 +137,7 @@
       max-width: 400px;
       background: #f5f7fa;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 0.95rem;
       text-align: center;
       white-space: pre-wrap;
@@ -222,7 +228,11 @@
     try {
       const res = await fetch(WEBAPP_URL);
       const data = await res.json();
+
+      // Reinicia todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
+
+      // Marca ocupados según datos de la hoja
       data.datos.forEach(fila => {
         const numero = fila[0];
         const comprador = fila[3];
@@ -232,6 +242,7 @@
           if (cell) cell.className = "cell ocupado";
         }
       });
+
       document.getElementById("salida").textContent = "Lista actualizada";
     } catch (err) {
       document.getElementById("salida").textContent = "Error de conexión: " + err.message;
@@ -271,10 +282,9 @@
     }
   });
 
+  // Llamada inicial
   consultar();
 </script>
 
 </body>
 </html>
-
-  
