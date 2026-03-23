@@ -237,10 +237,9 @@
 
   <pre id="salida">Esperando...</pre>
 </main>
-  
   <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwj3GOKtimg96m4c1w72qN5thWc25EvPadFG2jY4CtN19y5R5NyBz1GTzLPAkpwlfxlrw/exec";
-  const HOJA_URL = "https://docs.google.com/spreadsheets/d/17kaYT81DBVP8G7LeaMV1Thic32bwL528cN4DngzF4lQ/";
+  const HOJA_URL = "https://docs.google.com/spreadsheets/d/17kaYT81DBVP8G7LeaMV1Thic32bwL528cN4DngzF4lQ/edit";
 
   // Construcción de cuadrícula 10x10
   const grid = document.getElementById("grid");
@@ -254,6 +253,7 @@
     grid.appendChild(cell);
   }
 
+  // Selección de número en la cuadrícula
   function seleccionarNumero(num, cell) {
     if (cell.classList.contains("ocupado")) return;
     document.getElementById("numeroSeleccionado").value = num;
@@ -263,37 +263,23 @@
   // Consulta y muestra datos de la hoja
   async function consultar() {
     try {
-      document.getElementById("salida").textContent = "🔄 Consultando hoja...";
+      const salida = document.getElementById("salida");
+      salida.textContent = "Consultando hoja...";
+
       const res = await fetch(WEBAPP_URL);
       const data = await res.json();
 
       if (data.error) {
-        document.getElementById("salida").textContent = "❌ Error: " + data.error;
+        salida.textContent = "Error: " + data.error;
         return;
       }
 
       // Reinicia todas las celdas como libres
       document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
-// ... (Continúa después del comentario de reinicio de celdas libres)  // Consulta y muestra datos de la hoja
-  async function consultar() {
-    try {
-      const salida = document.getElementById("salida");
-      salida.textContent = "🔄 Consultando hoja...";
-      
-      const res = await fetch(WEBAPP_URL);
-      const data = await res.json();
 
-      if (data.error) {
-        salida.textContent = "❌ Error: " + data.error;
-        return;
-      }
-
-      // 1. Reinicia todas las celdas como libres antes de marcar
-      document.querySelectorAll(".cell").forEach(c => c.className = "cell libre");
-
-      // 2. Construye el contenido tipo “base de datos”
-      let contenidoHoja = "📊 BASE DE DATOS (Registros reales)\n";
-      contenidoHoja += "NUM | COMPRADOR | TELÉFONO | FECHA\n";
+      // Construye el contenido tipo “base de datos”
+      let contenidoHoja = "BASE DE DATOS (Registros reales)\n";
+      contenidoHoja += "NUM | COMPRADOR | FECHA\n";
       contenidoHoja += "-------------------------------------------\n";
 
       data.datos.forEach((fila, idx) => {
@@ -302,25 +288,24 @@
 
         const numero   = fila[0]; // Columna A
         const comprador= fila[3]; // Columna D
-        const telefono = fila[4]; // Columna E
         const fecha    = fila[5]; // Columna F
 
-        // CORRECCIÓN CRÍTICA: Validar número (incluyendo el 0) y pintar de rojo
+        // Validar número y marcar ocupado
         if (numero !== "" && numero !== undefined && comprador && comprador.trim() !== "") {
           const numStr = numero.toString().padStart(2, "0");
           const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
-          
           if (cell) {
-            cell.className = "cell ocupado"; // AQUÍ SE PINTA DE ROJO
+            cell.className = "cell ocupado"; // Se pinta de rojo
           }
-          contenidoHoja += `${numStr} | ${comprador} | ${telefono || 'N/A'} | ${fecha || 'N/A'}\n`;
+          // Teléfono se oculta en la salida, solo se registra en la hoja
+          contenidoHoja += `${numStr} | ${comprador} | ${fecha || 'N/A'}\n`;
         }
       });
 
       salida.textContent = contenidoHoja;
 
     } catch (err) {
-      document.getElementById("salida").textContent = "⚠️ Error de conexión: " + err.message;
+      document.getElementById("salida").textContent = "Error de conexión: " + err.message;
     }
   }
 
@@ -339,7 +324,7 @@
     const params = new URLSearchParams({ numero: num, comprador, telefono });
 
     try {
-      document.getElementById("salida").textContent = "⏳ Registrando en la base de datos...";
+      document.getElementById("salida").textContent = "Registrando en la base de datos...";
       const res = await fetch(WEBAPP_URL, { method: "POST", body: params });
       const data = await res.json();
 
@@ -347,8 +332,8 @@
         alert("Error: " + data.error);
       } else {
         document.getElementById("formRegistro").reset();
-        document.getElementById("salida").textContent = "✅ Número " + num + " guardado con éxito";
-        consultar(); // Refresca la lista y los colores ROJOS
+        document.getElementById("salida").textContent = "Número " + num + " guardado con éxito";
+        consultar(); // Refresca la lista y los colores
       }
     } catch (err) {
       alert("Error de conexión: " + err.message);
@@ -357,11 +342,11 @@
 
   // Botón único para ver datos de la hoja y registrar IP
   document.getElementById("btnConsultar").addEventListener("click", async (e) => {
-    e.preventDefault(); // IMPORTANTE: Evita que el botón "limpie" la página
-    
-    // Obtener IP (Registro silencioso)
+    e.preventDefault(); // Evita que el botón envíe el formulario
+
+    // Registro silencioso de IP
     try {
-      const ipRes = await fetch('https://api.ipify.org');
+      const ipRes = await fetch('https://api.ipify.org?format=json');
       const ipData = await ipRes.json();
       const logParams = new URLSearchParams({ 
         numero: "LOG_VISTA", 
@@ -369,7 +354,9 @@
         telefono: "Consulto Base Datos" 
       });
       fetch(WEBAPP_URL, { method: "POST", body: logParams });
-    } catch (e) { console.log("Salto de registro IP"); }
+    } catch (e) { 
+      console.log("No se pudo registrar la IP"); 
+    }
 
     consultar();
   });
@@ -377,6 +364,5 @@
   // Llamada inicial para pintar los números ocupados al abrir la página
   consultar();
 </script>
-
 </body>
 </html>
