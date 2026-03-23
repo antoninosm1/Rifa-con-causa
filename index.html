@@ -3,130 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <title>Rifa con Causa</title>
-  <style>/* Reset básico */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-/* Contenedor general */
-body {
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #fafafa;
-  color: #333;
-  line-height: 1.6;
-  display: flex;
-  flex-direction: column;
-  align-items: center;   /* centra todo horizontalmente */
-  justify-content: flex-start;
-  min-height: 100vh;
-  padding: 1rem;
-}
+    /* Contenedor general */
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #fafafa;
+      color: #333;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;   /* centra todo horizontalmente */
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 1rem;
+    }
 
-/* Bloque de explicación de la rifa */
-.rifa-causa {
-  width: 100%;
-  max-width: 900px;       /* límite en pantallas grandes */
-  margin: 1rem auto;
-  padding: 1.5rem;
-  background: #fff;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-}
+    /* Bloque de explicación de la rifa */
+    .rifa-causa {
+      width: 100%;
+      max-width: 900px;       /* límite en pantallas grandes */
+      margin: 1rem auto;
+      padding: 1.5rem;
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+    }
 
-/* Cuadrícula de números */
-.grid-numeros {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-  gap: 0.5rem;
-  width: 100%;
-  max-width: 900px;
-  margin: 2rem auto;
-}
+    /* Cuadrícula de números */
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 900px;
+      margin: 2rem auto;
+    }
 
-/* Botones de la cuadrícula */
-.grid-numeros button {
-  padding: 0.8rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: #f5f5f5;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
-}
+    /* Celdas de la cuadrícula */
+    .cell {
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f5f5f5;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
 
-.grid-numeros button:hover {
-  background: #dfe6e9;
-}
+    .cell:hover {
+      background: #dfe6e9;
+    }
 
-/* Botones ocupados */
-.grid-numeros button.ocupado {
-  background: #ff7675;
-  color: #fff;
-  cursor: not-allowed;
-}
+    .cell.ocupado {
+      background: #ff7675;
+      color: #fff;
+      cursor: not-allowed;
+    }
 
-/* Responsividad: pantallas pequeñas */
-@media (max-width: 600px) {
-  .rifa-causa {
-    padding: 1rem;
-    font-size: 0.95rem;
-  }
+    /* Responsividad: pantallas pequeñas */
+    @media (max-width: 600px) {
+      .rifa-causa {
+        padding: 1rem;
+        font-size: 0.95rem;
+      }
 
-  .grid-numeros {
-    grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
-    gap: 0.4rem;
-  }
+      #grid {
+        grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+        gap: 0.4rem;
+      }
 
-  .grid-numeros button {
-    padding: 0.6rem;
-    font-size: 0.85rem;
-  }
-}
+      .cell {
+        padding: 0.6rem;
+        font-size: 0.85rem;
+      }
+    }
 
-/* Responsividad: pantallas grandes */
-@media (min-width: 1200px) {
-  .rifa-causa {
-    font-size: 1.1rem;
-    line-height: 1.8;
-  }
+    /* Responsividad: pantallas grandes */
+    @media (min-width: 1200px) {
+      .rifa-causa {
+        font-size: 1.1rem;
+        line-height: 1.8;
+      }
 
-  .grid-numeros button {
-    font-size: 1rem;
-  }
-}
+      .cell {
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
 
-<div class="rifa-causa">
-  <h2>Rifa con Causa</h2>
+  <div class="rifa-causa">
+    <h2>Rifa con Causa</h2>
 
-  <p>
-    Esta iniciativa nace con el objetivo de sanear un faltante de caja. 
-    Al participar, no solo nos ayudas a recuperarlo, sino que también entras 
-    a una bolsa de premios diseñada para recompensar a más ganadores y de manera equitativa. 
-    Esto será después de recuperar el faltante, por lo que pido se vendan la mayor cantidad de números. 
-    Comparte con tus conocidos por favor. La rifa es en la fecha <strong>07/04/2026</strong> con los que se junten...
-  </p>
+    <p>
+      Esta iniciativa nace con el objetivo de sanear un faltante de caja. 
+      Al participar, no solo nos ayudas a recuperarlo, sino que también entras 
+      a una bolsa de premios diseñada para recompensar a más ganadores y de manera equitativa. 
+      Esto será después de recuperar el faltante, por lo que pido se vendan la mayor cantidad de números. 
+      Comparte con tus conocidos por favor. La rifa es en la fecha <strong>07/04/2026</strong> con los que se junten...
+    </p>
 
-  <h3>Distribución de la bolsa (sobre el excedente):</h3>
-  <ul class="premios">
-    <li>🥇 1er Premio: 40% del acumulado</li>
-    <li>🥈 2do Premio: 30% del acumulado</li>
-    <li>🥉 3er Premio: 20% del acumulado</li>
-    <li>🏅 4to Premio: 10% del acumulado</li>
-  </ul>
+    <h3>Distribución de la bolsa (sobre el excedente):</h3>
+    <ul class="premios">
+      <li>🥇 1er Premio: 40% del acumulado</li>
+      <li>🥈 2do Premio: 30% del acumulado</li>
+      <li>🥉 3er Premio: 20% del acumulado</li>
+      <li>🏅 4to Premio: 10% del acumulado</li>
+    </ul>
 
-  <h3>Información Importante:</h3>
-  <div class="info">
-    <p>💰 Costo del número: $[INSERTAR PRECIO] MXN</p>
-    <p>🛡️ Garantía de Transparencia: Los premios se calculan sobre el total recaudado una vez cubierto el faltante de caja. ¡Entre más números vendamos, más grandes serán los premios!</p>
-    <p>📢 Resultados: El sorteo se realizará el día 07/04/2026 y los ganadores serán publicados en esta página y contactados vía telefónica.</p>
-    <p>🤝 Tu apoyo hace la diferencia: Gracias por ayudarnos a recuperar el equilibrio y por confiar en este proceso. ¡Mucha suerte!</p>
-  </div>
-</div>
+    <h3>Información Importante:</h3>
+    <div class="info">
+      <p>💰 Costo del número: $[INSERTAR PRECIO] MXN</p>
+      <p>🛡️ Garantía de Transparencia: Los premios se calculan sobre el total recaudado una vez cubierto el faltante de caja. ¡Entre más números vendamos, más grandes serán los premios!</p>
+      <p>📢 Resultados: El sorteo se realizará el día 07/04/2026 y los ganadores serán publicados en esta página y contactados vía telefónica.</p>
+      <p>🤝 Tu apoyo hace la diferencia: Gracias por ayudarnos a recuperar el equilibrio y por confiar en este proceso. ¡Mucha suerte!</p>
+    </div>
+  </div> <!-- cierre correcto del bloque de explicación -->
+
   <!-- Cuadrícula de números -->
   <div id="grid"></div>
 
@@ -139,10 +141,8 @@ body {
   </form>
 
   <pre id="salida">Esperando...</pre>
-</div>
 
 <script>
-  // URL RESTAURADA: AKfycbyVqb6oARSkez-7EzwJf6AacBbb6MTbHffVuYVCHz1AwJbNiDEX1MT3vadVkv2Ef_IhzA/exec
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpLL509GKDl1n5Kv3P4cjIrhtg0tCEJuKp0IGxtjxUG5MXmfNy-HAzDZscIy0yF7844Q/exec";
 
   // Construcción inicial de la cuadrícula (del 00 al 99)
@@ -176,7 +176,6 @@ body {
           const numero = fila[0];       // Columna A: número
           const comprador = fila[3];    // Columna D: nombre
           
-          // CORRECCIÓN PARA EL 00: Se verifica que no sea vacío para que el 0 no sea ignorado como "falso"
           if (numero !== "" && numero !== undefined) {
             const numStr = numero.toString().padStart(2, "0");
             const cell = document.querySelector(`.cell[data-numero='${numStr}']`);
@@ -223,29 +222,4 @@ body {
       const res = await fetch(WEBAPP_URL, {
         method: "POST",
         body: params,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
-      });
-      const texto = await res.text();
-      const data = JSON.parse(texto);
-
-      if (data.error) {
-        alert("Error: " + data.error);
-      } else {
-        const cell = document.querySelector(`.cell[data-numero='${num}']`);
-        if (cell) cell.className = "cell ocupado";
-
-        document.getElementById("formRegistro").reset();
-        document.getElementById("salida").textContent = "Número " + num + " registrado correctamente";
-
-        consultar();
-      }
-    } catch (err) {
-      alert("Error de conexión: " + err.message);
-    }
-  });
-
-  consultar();
-</script>
-
-</body>
-</html>
+        headers: { "Content-Type": "application
