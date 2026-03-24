@@ -6,9 +6,12 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <style>
-/* Reset básico */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+  <style>/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
   font-family: "Segoe UI", Arial, sans-serif;
@@ -39,10 +42,15 @@ header {
   color: #fff;
   padding: 1rem;
   border-radius: 0 0 12px 12px;
+  position: relative;
+  min-height: 60px; /* asegura altura mínima */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 header nav {
-  display: flex;
+  display: none;
   justify-content: center;
   gap: 2rem;
   flex-wrap: wrap;
@@ -56,6 +64,20 @@ header nav a {
 }
 
 header nav a:hover { color: #f1c40f; }
+
+/* Botón hamburguesa */
+.hamburger {
+  display: none;
+  font-size: 2rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%); /* centra verticalmente */
+}
 
 /* Contenedor principal */
 main {
@@ -193,12 +215,47 @@ form#formRegistro button:hover { background: #2980b9; }
 }
 
 /* Responsividad */
+
+/* Menú hamburguesa en móviles */
 @media (max-width: 768px) {
-  main { width: 98%; margin: 1rem auto; }
-  #grid { grid-template-columns: repeat(auto-fit, minmax(45px, 1fr)); }
-  .cell { padding: 0.6rem; font-size: 0.85rem; }
+  .hamburger { display: block; }
+  nav.open { 
+    display: flex; 
+    flex-direction: column; 
+    background: #2c3e50; 
+    padding: 1rem; 
+  }
+  nav a { padding: 0.5rem 0; }
 }
 
+/* Pantallas grandes (desktop) */
+@media (min-width: 769px) {
+  nav { display: flex; }
+}
+
+/* Pantallas pequeñas (celulares) */
+@media (max-width: 600px) {
+  body { font-size: 1.1rem; }
+  main { width: 100%; margin: 1rem auto; padding: 0.5rem; }
+  #grid { 
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); 
+    max-width: 100%; 
+  }
+  .cell { 
+    padding: 1rem; 
+    font-size: 1rem; 
+  }
+  h3 { font-size: 1rem; }
+  .rifa-causa { font-size: 0.95rem; }
+}
+
+/* Pantallas medianas (tablets) */
+@media (min-width: 601px) and (max-width: 1024px) {
+  #grid { grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); }
+  .cell { font-size: 0.9rem; }
+}
+
+/* Pantallas grandes (desktop) */
 @media (min-width: 1200px) {
   .rifa-causa { font-size: 1.1rem; line-height: 1.8; }
   .cell { font-size: 1rem; }
