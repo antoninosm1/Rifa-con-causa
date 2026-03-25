@@ -322,7 +322,15 @@ form#formRegistro button:hover { background: #2980b9; }
   </p>
 </footer>
 
+  <!-- Script para abrir/cerrar menú hamburguesa -->
+<script>
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+  const menuNav = document.getElementById("menuNav");
 
+  hamburgerBtn.addEventListener("click", () => {
+    menuNav.classList.toggle("open");
+  });
+</script>
 
   <script>
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwj3GOKtimg96m4c1w72qN5thWc25EvPadFG2jY4CtN19y5R5NyBz1GTzLPAkpwlfxlrw/exec";
@@ -471,14 +479,6 @@ form#formRegistro button:hover { background: #2980b9; }
   marcarOcupados();
     
 </script>
-  <!-- Script para abrir/cerrar menú hamburguesa -->
-<script>
-  const hamburgerBtn = document.getElementById("hamburgerBtn");
-  const menuNav = document.getElementById("menuNav");
 
-  hamburgerBtn.addEventListener("click", () => {
-    menuNav.classList.toggle("open");
-  });
-</script>
 </body>
 </html>
